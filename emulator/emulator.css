@@ -1,0 +1,13 @@
+/*
+    Styling for main emulator interface.
+ */
+ 
+ #emulator_display {
+     width: 320px;
+     height: 320px;
+     border: 1px #000 solid;
+ }
+ 
+  #emulator_console {
+     border: 1px #000 solid;
+ }
