@@ -1,0 +1,4 @@
+/nbproject/private/
+*.js
+!/third_party
+!gulpfile.js
