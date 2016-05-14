@@ -1,6 +1,27 @@
-/* 
+
+
+declare var hammertime : any;
+
+
+
+
+ 
+
+ /**
  * Emulator internals. Contains the API as well as the emulator UI.
  */
+
+
+//http://hammerjs.github.io/api/#hammer.input-event 
+//
+//var hammertime = new Hammer(myElement, myOptions);
+//hammertime.on('pan', function(ev) {
+//	console.log(ev);
+//});
+//
+//hammertime.get('pinch').set({ enable: true });
+//hammertime.get('rotate').set({ enable: true });
+
 
 
 /* Local Storage Class. Stores an object by converting it to a JSON string
