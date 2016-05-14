@@ -27,10 +27,31 @@ declare var hammertime : any;
 /* Local Storage Class. Stores an object by converting it to a JSON string
  * and storing it in the browser's local storage. */
 class emulator_storage{
+    
+    
+    private table(){ 
+        /* Access the HTML table.*/
+        /* Retrieve from localStorage and output in HTML table. */
+        
+        var data = "<tr><th>Key</th><th>Value</th></tr>";
+        
+      for (var key in localStorage) {
+        data += "<tr><td>" + key + '</td><td>' + localStorage[key] + "</td></tr>";
+      }
+      
+      document.getElementById("data_table").innerHTML = data;
+}
+
+
+
+
+
+    
+    
+    
     set_object(key: string, value: any) {
         localStorage.setItem(key, JSON.stringify(value));
     }
-
     get_object(key: string) {
         var value = localStorage.getItem(key);
         return value && JSON.parse(value);
