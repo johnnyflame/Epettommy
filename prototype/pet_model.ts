@@ -63,13 +63,14 @@ class tommy {
         this.hunger = strength;
     }
     /*
-     * Feed the pet, sets the pets health based on food quality.
+     * Feed the pet, sets the pets hunger and health based on food quality.
      */
     feed(meal_quality: number) {
         this.hunger = this.hunger - meal_quality;
         if (this.hunger < 0) {
             this.hunger = 0;
         }
+        //if (meal_quality) adjust hunger and health...
     }
     /*
     * Sets emotion based on play

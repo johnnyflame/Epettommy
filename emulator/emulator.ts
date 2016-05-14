@@ -3,10 +3,6 @@
 declare var hammertime : any;
 
 
-
-
- 
-
  /**
  * Emulator internals. Contains the API as well as the emulator UI.
  */
