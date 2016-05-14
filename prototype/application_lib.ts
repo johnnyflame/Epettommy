@@ -24,12 +24,12 @@ abstract class actor {
     y: number;
     
     /* draw the actor on the display */
-    draw (ctx: graphics_context): void;
+    abstract draw (ctx: graphics_context): void;
     
     /* Update the actor. This is given dt - the amount of time that has passed
      * since the last time the scene was updated
      */
-    update (dt : number): void;
+    abstract update (dt : number): void;
 
     /* Put it at the given position */
     set_position (x : number, y:number){
@@ -124,7 +124,7 @@ class application{
             this.ctx.clear();
 
             /* Draw Scene to display */
-            this.current_scene.draw(ctx);
+            this.current_scene.draw(this.ctx);
 
             /* Update Scene */
             this.current_scene.update(dt);
@@ -178,9 +178,10 @@ class sprite extends actor{
     /* Constructs the sprite from the given image, corresponding to the offset position and size
      * inside the sprite-sheet image.
      */
-    constructor (private image:any, private offset_x : number, private offset_y : number
+    constructor (private image:any, private offset_x : number, private offset_y : number,
                  private offset_width:number, private offset_height:number)
     {
+        super();
         this.width = offset_width;
         this.height= offset_height;
     }
