@@ -2,26 +2,10 @@
  * Emulator internals. Contains the API as well as the emulator UI.
  */
 
+import "./emulator.d.ts";
+
 /* Library Declaration */
 declare var Hammer : any;
-var os : any;
-
-/* Available gesture types. */
-enum gesture_type {tap, swipeup, swipedown, swipeleft, swiperight}
-type gesture_callback = (g:gesture_type, x:number, y:number)=>void;
-type gesture_callback_id = number;
-
-//http://hammerjs.github.io/api/#hammer.input-event 
-//
-//var hammertime = new Hammer(myElement, myOptions);
-//hammertime.on('pan', function(ev) {
-//	console.log(ev);
-//});
-//
-//hammertime.get('pinch').set({ enable: true });
-//hammertime.get('rotate').set({ enable: true });
-
-
 
 /* Local Storage Class. Stores an object by converting it to a JSON string
  * and storing it in the browser's local storage. */
@@ -130,7 +114,8 @@ class emulator_ui{
             
             /* Call application to start, and then set set it to be rendered. */
             this.app_list[this.current_app].start_callback();
-            os.render_function = this.app_list[this.current_app].render_callback;
+            var unsafe : any = os;// Remove type checking on the interface to access render_function directly
+            unsafe.render_function = this.app_list[this.current_app].render_callback;
            
         }
     }
@@ -143,7 +128,7 @@ class emulator_ui{
  * Main emulator API. Also contains init logic.
  */
 
-class emulator {
+class emulator implements emulator {
     
     // Emulator display canvas
     private display : HTMLCanvasElement;
