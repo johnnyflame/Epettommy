@@ -3,6 +3,7 @@
  * code was inspired by the quintus and excalibur web game engines.
  */
 
+import "../emulator/emulator.d.ts";
 
 /*
  * At the current stage, until any decisions on the graphics context are final,
@@ -95,58 +96,77 @@ class scene {
 class application{
 
     private current_scene : scene;
-    private ctx : graphics_context;
     private running : boolean;
+    
+    private last_time : number;
+    private curr_time : number;
+    
+    public init () : void {
+        this.running = true;
+        
+        this.last_time = os.get_time().getTime();
+
+        if (this.current_scene)
+            this.current_scene.init();
+    }
     
     /*
      * Run Main Loop
      */
-    public run() {
-
-        /* Init loop and graphics */
-        this.ctx = os.get_graphics_context();
-        this.running = true;
+    public render() : boolean {
         
-        let last_time : number = new Date().getTime();
-        let curr_time : number;
-
-        this.current_scene.init();
-        
-        while(this.running)
-        {
-            
-            /* Calculate time differences for animation. */
-            curr_time = new Date().getTime();
-            let dt : number = curr_time - last_time;
-            last_time = curr_time;
-
-            /* Clear Display */
-            this.ctx.clear();
-
-            /* Draw Scene to display */
-            this.current_scene.draw(this.ctx);
-
-            /* Update Scene */
-            this.current_scene.update(dt);
+        if (!this.running){
+            this.current_scene.end();
+            return false;
         }
 
-        this.current_scene.end();
+        /* Get Context */
+        var ctx = os.get_graphics_context();
+
+        /* Calculate time differences for animation. */
+        this.curr_time = os.get_time().getTime();
+        let dt : number = this.curr_time - this.last_time;
+        this.last_time = this.curr_time;
+
+        /* Clear Display */
+        ctx.clear(); // TODO: This function does not yet exist
+
+        /* Draw Scene to display */
+        this.current_scene.draw(ctx);
+
+        /* Update Scene */
+        this.current_scene.update(dt);
+        
+        return true;
     }
 
     /*
      * Set game loop to finish
      */
-    public quit (){
+    public quit () : void{
         this.running = false;
     }
 
     /*
-     * Change the scene being drawn
+     * Set/Change the scene being drawn
      */
-    public change_scene(new_scene : scene){
-        this.current_scene.end();
+    public set_scene(new_scene : scene) : void{
+        if (this.current_scene)
+            this.current_scene.end();
         this.current_scene = new_scene;
         this.current_scene.init();
+    }
+    
+    /* Register this application with the given operating system under the given
+     * name
+     */
+    private register_with_os (name:string, operating_system:emulator) : void{
+        operating_system.register_application (
+            name,
+            () => this.init(), 
+            () => this.render()
+            
+        );
     }
 }
 
