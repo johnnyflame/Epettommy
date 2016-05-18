@@ -160,6 +160,7 @@ class emulator implements emulator {
         this.gesture_interpreter.on("swipedown", call_ref);
         this.gesture_interpreter.on("swipeleft", call_ref);
         this.gesture_interpreter.on("swiperight", call_ref);
+        this.gesture_interpreter.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
 
         // Make an initial call to set up render callbacks
         this.call_render();
