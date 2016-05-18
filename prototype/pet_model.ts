@@ -70,7 +70,7 @@ class tommy {
         if (this.hunger < 0) {
             this.hunger = 0;
         }
-        //if (meal_quality) adjust hunger and health...
+        // if (meal_quality) adjust hunger and health...
     }
     /*
     * Sets emotion based on play

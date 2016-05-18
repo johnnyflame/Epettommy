@@ -3,13 +3,10 @@
  * code was inspired by the quintus and excalibur web game engines.
  */
 
-import "../emulator/emulator.d.ts";
+// Magic comment to include definitions, but not have to worry
+// about module inclusion
+/// <reference path="../emulator/emulator.api.ts"/>
 
-/*
- * At the current stage, until any decisions on the graphics context are final,
- * we simply allow it to be any type
- */
- type graphics_context = any;
 
 /* Actors are the units which make up the scene. The scene is the entire view, 
  * and is responsible for drawing the display.
@@ -30,16 +27,16 @@ abstract class actor {
     /* Update the actor. This is given dt - the amount of time that has passed
      * since the last time the scene was updated
      */
-    abstract update (dt : number): void;
+    abstract update (dt: number): void;
 
     /* Put it at the given position */
-    set_position (x : number, y:number){
+    set_position (x: number, y: number) {
         this.x = x;
         this.y = y;
     }
 
     /* Set the size. */
-    set_size (width: number, height : number){
+    set_size (width: number, height: number) {
         this.width = width;
         this.height = height;
     }
@@ -58,22 +55,22 @@ class scene {
     private actors: actor[];
     
     /* Add an actor to the scene. */
-    public add(item: actor) : void{
+    public add(item: actor): void {
         this.actors.push(item);
     }
 
     /* Draw the scene on the given graphics context */
-    public draw(ctx: graphics_context) : void{
+    public draw(ctx: graphics_context): void {
         this.actors.forEach(function (item: actor){
             item.draw(ctx);
-        })
+        });
     }
     
     /* Update all the actors. */
-    public update(dt: number) : void{
+    public update(dt: number): void {
         this.actors.forEach(function (item: actor){
             item.update(dt);
-        })
+        });
     }
 
     /* Initialize the scene. For implementation, this might be where all the
@@ -82,7 +79,7 @@ class scene {
     }
 
     /* Finish the scene, e.g. remove action requests. */
-    public end (){
+    public end () {
     }
 
     
@@ -93,15 +90,15 @@ class scene {
 /*
  * Application class. Contains main loop and exit controls
  */
-class application{
+class application {
 
-    private current_scene : scene;
-    private running : boolean;
+    private current_scene: scene;
+    private running: boolean;
     
-    private last_time : number;
-    private curr_time : number;
+    private last_time: number;
+    private curr_time: number;
     
-    public init () : void {
+    public init (): void {
         this.running = true;
         
         this.last_time = os.get_time().getTime();
@@ -113,19 +110,19 @@ class application{
     /*
      * Run Main Loop
      */
-    public render() : boolean {
+    public render(): boolean {
         
-        if (!this.running){
+        if (!this.running) {
             this.current_scene.end();
             return false;
         }
 
         /* Get Context */
-        var ctx = os.get_graphics_context();
+        let ctx = os.get_graphics_context();
 
         /* Calculate time differences for animation. */
         this.curr_time = os.get_time().getTime();
-        let dt : number = this.curr_time - this.last_time;
+        let dt: number = this.curr_time - this.last_time;
         this.last_time = this.curr_time;
 
         /* Clear Display */
@@ -143,14 +140,14 @@ class application{
     /*
      * Set game loop to finish
      */
-    public quit () : void{
+    public quit (): void {
         this.running = false;
     }
 
     /*
      * Set/Change the scene being drawn
      */
-    public set_scene(new_scene : scene) : void{
+    public set_scene(new_scene: scene): void {
         if (this.current_scene)
             this.current_scene.end();
         this.current_scene = new_scene;
@@ -160,7 +157,7 @@ class application{
     /* Register this application with the given operating system under the given
      * name
      */
-    private register_with_os (name:string, operating_system:emulator) : void{
+    private register_with_os (name: string, operating_system: emulator): void {
         operating_system.register_application (
             name,
             () => this.init(), 
@@ -185,7 +182,7 @@ class application{
 /*
  * This actor displays a single sprite from a sprite sheet.
  */
-class sprite extends actor{
+class sprite extends actor {
 
     /* Displayed height and width of the sprite */
     public width: number;
@@ -198,16 +195,15 @@ class sprite extends actor{
     /* Constructs the sprite from the given image, corresponding to the offset position and size
      * inside the sprite-sheet image.
      */
-    constructor (private image:any, private offset_x : number, private offset_y : number,
-                 private offset_width:number, private offset_height:number)
-    {
+    constructor (private image: any, private offset_x: number, private offset_y: number,
+                 private offset_width: number, private offset_height: number) {
         super();
         this.width = offset_width;
-        this.height= offset_height;
+        this.height = offset_height;
     }
     
     /* Draw the sprite. */
-    draw (ctx: graphics_context) : void{
+    draw (ctx: graphics_context): void {
         ctx.drawImage(
             this.image,
             this.offset_x, this.offset_y, this.offset_width, this.offset_height,
@@ -216,7 +212,7 @@ class sprite extends actor{
     }
     
     /* Update the actor. A Sprite does nothing. */
-    update (dt : number): void{
+    update (dt: number): void {
     }
 
 }
