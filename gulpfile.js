@@ -1,11 +1,35 @@
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Typescipt Complilation tasks
  */
 
 var gulp = require('gulp');
+var ts = require('gulp-typescript');
+var del = require('del');
 
-gulp.task('default', function () {
-    // place code for your default task here
+var tslint = require("gulp-tslint");
+
+ 
+gulp.task('build', function () {
+	return gulp.src('**/*.ts')
+		.pipe(ts({
+			noImplicitAny: true,
+                        target: "ES3"
+		}))
+		.pipe(gulp.dest('build'));
+});
+
+gulp.task('clean', function(cb) {
+  // You can use multiple globbing patterns as you would with `gulp.src`
+  del(['build'], cb);
+});
+
+ 
+gulp.task("tslint", function () {
+    return gulp.src('**/*.ts')
+        .pipe(tslint({configuration: "test/tslint.json"}))
+        .pipe(tslint.report("verbose"));
+});
+
+gulp.task("test", function () {
+    return console.log("QUnit tests can be run from the browser");
 });
