@@ -4,7 +4,6 @@
  */
 
 class tommy {
-
     // Private member health, intial health set to 0.5.
     private health: number = 0.5;
     // Private member hunger, intial hunger set to 0.5.
@@ -13,7 +12,17 @@ class tommy {
     private emotion: number = 0.5;
     // Private member strength, intial strength set to 1.
     private strength: number = 1.0;
-
+    // Private member stat_add, increase state increment.
+    private stat_increment: number = 0.1;
+    // Private member max_hunger, the maximum hunger limit.
+    private max_hunger: number = 1.2;
+    // Private member max_health, the maximum health limit.
+    private max_health: number = 1.0;
+    // Private member max_emotion, the maximum emotion limit.
+    private max_emotion: number = 1.0;
+    // Private member min_strength, the minimum strength limit.
+    private min_strength: number = 1.0;
+   
     /*
      * Get the pets health.
      */
@@ -25,6 +34,11 @@ class tommy {
      */
     set_health(health: number) {
         this.health = health;
+        if (this.health < 0) {
+            this.health = 0;
+        }else if(this.health > this.max_health) {
+            this.health = this.max_health;
+        }
     }
     /*
      * Get the pets hunger.
@@ -37,6 +51,11 @@ class tommy {
      */
     set_hunger(hunger: number) {
         this.hunger = hunger;
+        if (this.hunger < 0) {
+            this.hunger = 0;
+        }else if (this.hunger > this.max_hunger) {
+            this.hunger = this.max_hunger;
+        }
     }
     /*
      * Get the pets emotion.
@@ -48,7 +67,12 @@ class tommy {
      * Set the pets emotion.
      */
     set_emotion(emotion: number) {
-        this.hunger = emotion;
+        this.emotion = emotion;
+        if (this.emotion < 0) {
+            this.emotion = 0;
+        }else if (this.emotion > this.max_emotion) {
+            this.emotion = this.max_emotion;
+        }
     }
     /*
      * Get the pets strength.
@@ -60,22 +84,44 @@ class tommy {
      * Set the pets strength.
      */
     set_strength(strength: number) {
-        this.hunger = strength;
+        this.strength = strength;
+        if (this.strength < this.min_strength) {
+            this.strength = this.min_strength;
+        }
     }
     /*
      * Feed the pet, sets the pets hunger and health based on food quality.
+     * Also sets emotion.
+     * @param meal_quality is a value between 0.1 and 0.5 incusive,
+     * 0.1 for healthy meal, 0.5 for unhealthy.
      */
     feed(meal_quality: number) {
-        this.hunger = this.hunger - meal_quality;
+        this.hunger = this.hunger + meal_quality;
+        
         if (this.hunger < 0) {
             this.hunger = 0;
+        }else if (this.hunger > this.max_hunger) {
+            this.hunger = this.max_hunger;
         }
-        //if (meal_quality) adjust hunger and health...
+        // Adsust emotion and health based on food quality.
+        if (meal_quality > 0.4) {
+            this.emotion = this.emotion + this.stat_increment*2;
+            this.health = this.health - this.stat_increment*2;
+        }else if (meal_quality === 0.4) {
+            this.emotion = this.emotion + this.stat_increment;
+            this.health = this.health - this.stat_increment;
+        }else if (meal_quality === 0.2) {
+            this.emotion = this.emotion - this.stat_increment;
+            this.health = this.health + this.stat_increment;
+        }else if (meal_quality < 0.2) {
+            this.emotion = this.emotion - this.stat_increment*2;
+            this.health = this.health + this.stat_increment*2;
+        }
     }
     /*
     * Sets emotion based on play
     */
-    play() { }
-    
-    
+    play () {
+        this.emotion = this.emotion + this.stat_increment;
+    }
 }
