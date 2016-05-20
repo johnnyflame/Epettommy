@@ -83,7 +83,11 @@ class emulator_ui {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
-        ctx.fillText(this.app_list[this.current_app].name, this.canvas.width / 2, this.canvas.height / 2);
+        if (this.app_list[this.current_app]) {
+            ctx.fillText(this.app_list[this.current_app].name, this.canvas.width / 2, this.canvas.height / 2);
+        } else {
+            ctx.fillText("No Application", this.canvas.width / 2, this.canvas.height / 2);
+        }
     }
 
 
@@ -91,6 +95,9 @@ class emulator_ui {
      * when tapped.
      */
     gest_handle(evt: gesture_type, x: number, y: number) {
+        if (this.app_list.length === 0) {
+            return;
+        }
         switch (evt) {
             // Go to next app
         case gesture_type.swipeleft:
