@@ -1,14 +1,14 @@
 
 
 
-class game_behaviour{
+class game_behaviour {
     
     
     
     
     
     
-    move_forward(){
+    move_forward () {
         
         /*
          * movement is achieved as a proportion of the platform width plus linear bonus
@@ -33,7 +33,7 @@ class game_behaviour{
         
     }
     
-    collisionX(): boolean{
+    collisionX (): boolean {
         
        /* TODO: review
         * 
@@ -44,7 +44,7 @@ class game_behaviour{
         return false;
     }
     
-    collisionY(): boolean{
+    collisionY (): boolean {
         
        /*
         *   if (other.y = this.y + height){
@@ -52,7 +52,7 @@ class game_behaviour{
         *   }
         */
        
-       return false
+       return false;
     }
     
     

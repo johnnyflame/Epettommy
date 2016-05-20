@@ -36,7 +36,7 @@ class tommy {
         this.health = health;
         if (this.health < 0) {
             this.health = 0;
-        }else if(this.health > this.max_health) {
+        }else if (this.health > this.max_health) {
             this.health = this.max_health;
         }
     }
@@ -100,13 +100,13 @@ class tommy {
         
         if (this.hunger < 0) {
             this.hunger = 0;
-        }else if (this.hunger > this.max_hunger) {
+        } else if (this.hunger > this.max_hunger) {
             this.hunger = this.max_hunger;
         }
         // Adsust emotion and health based on food quality.
         if (meal_quality > 0.4) {
-            this.emotion = this.emotion + this.stat_increment*2;
-            this.health = this.health - this.stat_increment*2;
+            this.emotion = this.emotion + this.stat_increment * 2;
+            this.health = this.health - this.stat_increment * 2;
         }else if (meal_quality === 0.4) {
             this.emotion = this.emotion + this.stat_increment;
             this.health = this.health - this.stat_increment;
@@ -114,8 +114,8 @@ class tommy {
             this.emotion = this.emotion - this.stat_increment;
             this.health = this.health + this.stat_increment;
         }else if (meal_quality < 0.2) {
-            this.emotion = this.emotion - this.stat_increment*2;
-            this.health = this.health + this.stat_increment*2;
+            this.emotion = this.emotion - this.stat_increment * 2;
+            this.health = this.health + this.stat_increment * 2;
         }
     }
     /*
