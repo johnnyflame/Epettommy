@@ -18,9 +18,13 @@
         <link href="emulator/emulator.css" rel="stylesheet">
         <script src="build/emulator/emulator.api.js"></script>
         <script src="build/emulator/emulator.js"></script>
-
+        
+        <!-- Application Library parts -->
+        <script src="build/prototype/application_lib.js"></script>
+        
         <!-- Include Application(s) -->
-        <script src="build/emulator/test_app.js"></script>
+        <script src="build/emulator/test_clock.js"></script>
+        <script src="build/prototype/test_application.js"></script>
 
         <!-- Connect emulator to the emulator_display div, and init when page loaded. -->
         <script>
@@ -34,7 +38,7 @@
             <div class="row">
                 <div class="col-md-6">
                     
-                    <canvas id="emulator_display" class="center-block">
+                    <canvas id="emulator_display" width="320" height="320" class="center-block">
                         Smart Watch Interface.
                     </canvas>
             </div>

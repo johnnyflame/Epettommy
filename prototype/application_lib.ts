@@ -20,6 +20,8 @@ abstract class actor {
     /* actor position */
     x: number;
     y: number;
+
+    visible: boolean;
     
     /* draw the actor on the display */
     abstract draw (ctx: graphics_context): void;
@@ -52,7 +54,7 @@ abstract class actor {
  */
 class scene {
     /* list of actors */
-    private actors: actor[];
+    private actors: actor[] = [];
     
     /* Add an actor to the scene. */
     public add(item: actor): void {
@@ -76,10 +78,16 @@ class scene {
     /* Initialize the scene. For implementation, this might be where all the
      actions would be set up. */
     public init () {
+        this.actors.forEach(function (item: actor){
+            item.visible = true;
+        });
     }
 
     /* Finish the scene, e.g. remove action requests. */
     public end () {
+        this.actors.forEach(function (item: actor){
+            item.visible = false;
+        });
     }
 
     
@@ -92,8 +100,8 @@ class scene {
  */
 class application {
 
-    private current_scene: scene;
-    private running: boolean;
+    current_scene: scene;
+    running: boolean;
     
     private last_time: number;
     private curr_time: number;
@@ -157,7 +165,7 @@ class application {
     /* Register this application with the given operating system under the given
      * name
      */
-    private register_with_os (name: string, operating_system: emulator): void {
+    register_with_os (name: string, operating_system: emulator): void {
         operating_system.register_application (
             name,
             () => this.init(), 
@@ -193,7 +201,7 @@ class sprite extends actor {
     public y: number;
 
     /* Constructs the sprite from the given image, corresponding to the offset position and size
-     * inside the sprite-sheet image.
+     * inside the sprite-sheet image. Expects user to set position.
      */
     constructor (private image: any, private offset_x: number, private offset_y: number,
                  private offset_width: number, private offset_height: number) {
@@ -216,3 +224,112 @@ class sprite extends actor {
     }
 
 }
+
+
+
+/*
+ * Simple button. Recieves tap events when visible. Displays another actor.
+ */
+class button extends actor {
+
+    private display: actor;
+    private callback: () => void;
+    private handler: gesture_callback_id;
+
+    
+    // Make a new button out of an actor, with a given callback on tap
+    constructor (display: actor, callback: () => void) {
+        super();
+        this.display = display;
+        this.callback = callback;
+
+        this.handler = os.add_gesture_handler(
+            (ev: gesture_type, x: number, y: number) => this.handle(ev, x, y)
+        );
+
+        this.width = display.width;
+        this.height = display.height;
+        this.x = display.x;
+        this.y = display.y;
+    }
+
+    // Draw the sub-actor
+    public draw (ctx: graphics_context): void {
+        this.display.draw(ctx);
+    }
+
+    // Update the sub-actor
+    public update (dt: number): void {
+        this.display.update (dt);
+    }
+
+    // Call the callback if the button was tapped (and button is active)
+    private handle(ev: gesture_type, x: number, y: number) {
+        if (this.visible 
+           && ev === gesture_type.tap // Tap
+           && this.x < x && x < this.x + this.width // x in button
+           && this.y < y && y < this.y + this.height// y in button
+        ) {
+            this.callback();
+        }
+    }
+
+    // Unregister the button
+    public finish(): void {
+        os.remove_gesture_handler(this.handler);
+    }
+
+}
+
+/*
+ * Simple rectangle
+ */
+
+class rect extends actor {
+
+    constructor (private fillStyle: any, private strokeStyle: any, private lineWidth = "1") {
+        super ();
+    }
+
+
+    /* Draw the sprite. */
+    draw (ctx: graphics_context): void {
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.fillStyle = this.fillStyle;
+        ctx.lineWidth = this.lineWidth;
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
+    
+    /* Update the actor. A rect does nothing. */
+    update (dt: number): void {
+    }
+}
+
+/* 
+ * Simple Label. Width and Height are ignored.
+ */
+ class label extends actor {
+     constructor (private label: string,
+            private font: string = "15px sans-serif",
+            private fill_style: string = "#000000",
+            private text_align: string = "left"
+            ) {
+         super();
+     }
+     
+    /* Draw the sprite. */
+    draw (ctx: graphics_context): void {
+        ctx.font = this.font;
+        ctx.fillStyle = this.fill_style;
+        ctx.textAlign = this.text_align;
+        ctx.fillText(this.label, this.x, this.y);
+    }
+    
+    /* Update the actor. A rect does nothing. */
+    update (dt: number): void {
+    }
+ }

@@ -22,7 +22,7 @@ class clock_application {
         
         let ctx: graphics_context = os.get_graphics_context();
         
-        ctx.font = "10px Arial";
+        ctx.font = "20px Arial";
         ctx.textAlign = "center";
  
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -49,16 +49,6 @@ class clock_application {
     let c = new clock_application();
 os.register_application(
         "Clock", // Name
-        () => c.init(), // Init function
-        () => c.draw() // Render function
-    );
-})();
-
-/* Add application to operating system staticly inside closure */
-(function () {
-    let c = new clock_application();
-os.register_application(
-        "Clock 2", // Name
         () => c.init(), // Init function
         () => c.draw() // Render function
     );
