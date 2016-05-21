@@ -8,6 +8,42 @@
 /* Library Declaration */
 declare var Hammer: any;
 
+
+
+/*
+ * Make some extensions to the context API. add clear(), width(), height() so that
+ * the application doesn't have to look inside .canvas
+ */
+ 
+ interface CanvasRenderingContext2D {
+    width: () => number;
+    height: () => number;
+    clear: () => void;
+}
+ 
+/*
+ * Get the width of the context
+ */
+CanvasRenderingContext2D.prototype.width = function() {
+    return this.canvas.width;
+};
+
+/*
+ * Get the height of the context
+ */
+CanvasRenderingContext2D.prototype.height = function() {
+    return this.canvas.height;
+};
+
+/*
+ * Clear the context
+ */
+CanvasRenderingContext2D.prototype.clear = function() {
+    this.clearRect(0, 0, this.canvas.width, this.canvas.height);
+};
+
+
+
 /* Local Storage Class. Stores an object by converting it to a JSON string
  * and storing it in the browser's local storage. */
 class emulator_storage {
@@ -80,10 +116,15 @@ class emulator_ui {
     /* Draw the application name of the current application to screen */
     draw() {
         let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d");
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.clear();
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
-        ctx.fillText(this.app_list[this.current_app].name, this.canvas.width / 2, this.canvas.height / 2);
+        ctx.fillStyle = "#000000";
+        if (this.app_list[this.current_app]) {
+            ctx.fillText(this.app_list[this.current_app].name, this.canvas.width / 2, this.canvas.height / 2);
+        } else {
+            ctx.fillText("No Application", this.canvas.width / 2, this.canvas.height / 2);
+        }
     }
 
 
@@ -91,6 +132,9 @@ class emulator_ui {
      * when tapped.
      */
     gest_handle(evt: gesture_type, x: number, y: number) {
+        if (this.app_list.length === 0) {
+            return;
+        }
         switch (evt) {
             // Go to next app
         case gesture_type.swipeleft:
@@ -223,6 +267,10 @@ class emulator implements emulator {
      */
     private internal_gesture_reciever(ev: any) {
         console.log("Event --- " + JSON.stringify(ev));
+        // Translate mouse to internal coordinates
+        let rect = this.display.getBoundingClientRect();
+        ev.center.x = ev.center.x - rect.left;
+        ev.center.y = ev.center.y - rect.top;
         switch (ev.type) {
         case "tap":
             this.gesture_handlers.forEach(function (item){
@@ -279,6 +327,9 @@ class emulator implements emulator {
         this.ui.app_list.push(new registered_application (name, start_callback, render_callback));
     }
 }
+
+
+
 
 /* Make global emulator instance */
 os  = new emulator();
