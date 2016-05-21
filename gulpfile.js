@@ -8,9 +8,10 @@ var del = require('del');
 
 var tslint = require("gulp-tslint");
 
- 
+var our_code = ['./**/*.ts', '!./node_modules/**'];
+
 gulp.task('build', function () {
-	return gulp.src('**/*.ts')
+	return gulp.src(our_code)
 		.pipe(ts({
 			noImplicitAny: true,
                         target: "ES3"
@@ -25,7 +26,7 @@ gulp.task('clean', function(cb) {
 
  
 gulp.task("tslint", function () {
-    return gulp.src('**/*.ts')
+    return gulp.src(our_code)
         .pipe(tslint({configuration: "test/tslint.json"}))
         .pipe(tslint.report("verbose"));
 });
