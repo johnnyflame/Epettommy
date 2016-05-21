@@ -3,7 +3,7 @@
  * level, not how he looks.
  */
 
-class tommy {
+class tommy_model {
     // Private member health, intial health set to 0.5.
     private health: number = 0.5;
     // Private member hunger, intial hunger set to 0.5.
