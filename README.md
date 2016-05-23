@@ -7,4 +7,4 @@ For the application prototype code, see "prototype".
 Test cases can be found under "Unit Tests". 
 
 
-To run the smart watch emulator, first compile and build all files, then run index.html under Site Root. 
+To run the smart watch emulator, first compile and build all files (gulp build), then run index.html under Site Root. 
