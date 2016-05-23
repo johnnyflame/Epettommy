@@ -45,7 +45,7 @@ namespace ePetTommy {
             super();
             
             let feed_placeholder = new rect("#777700", "#007777");
-            feed_placeholder.set_position(2,2);
+            feed_placeholder.set_position(2, 2);
             feed_placeholder.set_size(40, 40);
             // Connect Feed button to model
             this.feed_button = new button (feed_placeholder, 
