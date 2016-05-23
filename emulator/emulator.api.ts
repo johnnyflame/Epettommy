@@ -1,11 +1,26 @@
 /**
  * Emulator internals. Contains the API as well as the emulator UI.
+ * 
+ * This contains several classes
+ * 
+ *  - The emulator class. The public methods on this define the public interface
+ *  for an application running inside the emulator.
+ *  - The emulator_ui class. This is the internal workings of the emulator's
+ *  "operating system" user interface, and is responsible for loading applications
+ *  - The emulator_storage class, which is how the application can access 
+ *  persistant storage on the smart watch.
+ * 
  */
-
+ 
 /* Available gesture types. */
 enum gesture_type {tap, swipeup, swipedown, swipeleft, swiperight}
+
+/* Type for gesture callback functions */
 type gesture_callback = (g: gesture_type, x: number, y: number) => void;
+/* callback identifers to unregister a callback later */
 type gesture_callback_id = number;
+
+/* Graphics context type. Currently this is actually a modified CanvasRenderingContext2D */
 type graphics_context = any; // TODO: fix this situation
 
 
@@ -25,10 +40,6 @@ interface emulator_storage_connection {
  */
 
 interface emulator {
-
-    /* Initialize and start the smart watch.
-     * This should never be called by an application */
-    // public init(canvas_id:string)
 
     /* Get a CanvasRenderingContext2D which can draw on the display.
      * 
@@ -75,4 +86,10 @@ interface emulator {
     ): void;
 }
 
+/*
+ * This global represents how an application should access the emulator/smartwatch
+ * 
+ * Applications may take it for granted that this will be defined.
+ * 
+ */
 declare var os: emulator;

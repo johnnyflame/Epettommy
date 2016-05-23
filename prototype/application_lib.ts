@@ -1,6 +1,24 @@
 /*
  * This file contains reusable code for building (game) applications. This
  * code was inspired by the quintus and excalibur web game engines.
+ * 
+ * This library contains a few concepts.
+ * - An actor represents a single object that is displayed on screen.
+ * - A scene is a container of actors that can be swapped in and out, to represent
+ *   different displays to the user. The scene is responsible for making sure
+ *   each actor gets drawn when the scene is told to draw
+ * - An application manages which scene is running, and handles getting every
+ *   frame drawn by appealing to the cuurrent scene.
+ * 
+ * Some actors are implented:
+ * - A Sprite (bitmap) display
+ * - A Rectangle
+ * - A text label
+ * - A button, which makes any other actor accept tap events
+ * - An animator, which allows changing between other actors as frames.
+ * 
+ * To make this completely recursive, it is a possibility that the scene
+ * will be made to be an actor as well, so scenes can contain sub-scenes.
  */
 
 // Magic comment to include definitions, but not have to worry
@@ -21,6 +39,7 @@ abstract class actor {
     x: number;
     y: number;
 
+    /* Is the actor visible */
     visible: boolean;
 
     /* draw the actor on the display */
@@ -28,6 +47,9 @@ abstract class actor {
 
     /* Update the actor. This is given dt - the amount of time that has passed
      * since the last time the scene was updated. In milliseconds.
+     * 
+     * This would be where, for example, the actor would change it's position, or
+     * perhaps it's look to move or animate.
      */
     abstract update(dt: number): void;
 
@@ -176,17 +198,6 @@ class application {
 }
 
 
-/* 
- * Proposed classes:
- *  * Implementing actor:
- *    - AnimatedSprite (updates current sprite graphic after a given time)
- *  
- *  * Physics
- *    - Will contain code for collision detection and other generic but useful things
- *    - Special physics for game (e.g push strength) will go inside a class which
- *      inherits from this one.cd 
- */
-
 /*
  * This actor displays a single sprite from a sprite sheet.
  */
@@ -282,15 +293,18 @@ class button extends actor {
 }
 
 /*
- * Simple rectangle
+ * Simple filled/stroked rectangle
  */
 
 class rect extends actor {
 
+    /*
+     * Construct a rectangle with the given fillStyle, strokeStyle and lineWidth
+     * as per the canvas 2d context.
+     */
     constructor(private fillStyle: any, private strokeStyle: any, private lineWidth = "1") {
         super();
     }
-
 
     /* Draw the sprite. */
     draw(ctx: graphics_context): void {
@@ -310,9 +324,13 @@ class rect extends actor {
 }
 
 /* 
- * Simple Label. Width and Height are ignored.
+ * Simple text Label. Width and Height are ignored.
  */
 class label extends actor {
+    /*
+     * Construct a new label of the given string
+     * Also with the given font, fillStyle (as per canvas 2d context), and alignment
+     */
     constructor(private label: string,
         private font: string = "15px sans-serif",
         private fill_style: string = "#000000",
@@ -321,7 +339,7 @@ class label extends actor {
         super();
     }
 
-    /* Draw the sprite. */
+    /* Draw the label. */
     draw(ctx: graphics_context): void {
         ctx.font = this.font;
         ctx.fillStyle = this.fill_style;
@@ -329,7 +347,7 @@ class label extends actor {
         ctx.fillText(this.label, this.x, this.y);
     }
 
-    /* Update the actor. A rect does nothing. */
+    /* Update the actor. A label does nothing. */
     update(dt: number): void {
     }
 }

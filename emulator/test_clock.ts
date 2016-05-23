@@ -5,16 +5,22 @@
 /* Very Basic Clock. Closes on tap/swipe. */
 class clock_application {
 
+    // Is the application still running
     private running: boolean;
+    
+    // Identifier to unload gesture callback
     private callback_id: any;
 
+    // Start the application
     public init(): void {
         this.running = true;
         this.callback_id = os.add_gesture_handler ((e: any, x: number, y: number) => this.quit(e, x, y));
     }
 
+    // Draw the clock
     public draw(): boolean {
         
+        // If we have set the application to stop running, Quit.
         if (!this.running) {
             os.remove_gesture_handler (this.callback_id);
             return false; // Tell OS we are finished
@@ -39,6 +45,7 @@ class clock_application {
 
     }
     
+    // Tell the application to stop
     public quit(evt: any, x: number, y: number) {
         this.running = false;
     }
@@ -47,9 +54,11 @@ class clock_application {
 /* Add application to operating system staticly inside closure */
 (function () {
     let c = new clock_application();
-os.register_application(
-        "Clock", // Name
-        () => c.init(), // Init function
-        () => c.draw() // Render function
-    );
+    
+    // Actual registration with operating system
+    os.register_application(
+            "Clock", // Name
+            () => c.init(), // Init function
+            () => c.draw() // Render function
+        );
 })();

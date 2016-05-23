@@ -77,5 +77,5 @@ class test_application extends application {
     }
 }
 
-// Wrap in a closure, and make an instance
+// Wrap in a closure, and make an instance, which registers itself with the os
 (new test_application("Test Application"));

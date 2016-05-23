@@ -1,5 +1,17 @@
 /**
  * Emulator internals. Contains the API as well as the emulator UI.
+ * 
+ * The declarations of the interfaces are found in emulator.api.ts
+ * 
+ * This file contains the implementation of the emulator. This is split into
+ * several classes:
+ *  - The emulator class. The public methods on this define the public interface
+ *  for an application running inside the emulator.
+ *  - The emulator_ui class. This is the internal workings of the emulator's
+ *  "operating system" user interface, and is responsible for loading applications
+ *  - The emulator_storage class, which is how the application can access 
+ *  persistant storage on the smart watch.
+ * 
  */
 
 // Include definitions
@@ -166,7 +178,7 @@ class emulator_ui {
 
 
 /*
- * Main emulator API. Also contains init logic.
+ * Main emulator API and internal logic.
  */
 
 class emulator implements emulator {
@@ -218,8 +230,15 @@ class emulator implements emulator {
         return this.display.getContext("2d");
     }
 
+    /*
+     * This is the function responsible for getting the application
+     * to draw a frame, by calling the application's render() function.
+     * 
+     * If the application's render function returns false, then control
+     * is given back to the operating system.
+     */
     private call_render(): void {
-        // Make sure the emulator gets the next frame
+        // Make sure the emulator gets called on the next frame
         requestAnimationFrame(() => this.call_render());
         let result: boolean;
 
@@ -263,7 +282,8 @@ class emulator implements emulator {
     }
 
     /*
-     * Recieves gesture events from Hammer Library, then sends them through the array.
+     * Recieves gesture events from Hammer Library, then sends them through the
+     * array of registered gesture event handlers.
      */
     private internal_gesture_reciever(ev: any) {
         console.log("Event --- " + JSON.stringify(ev));
