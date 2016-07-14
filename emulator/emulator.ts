@@ -261,7 +261,10 @@ class emulator implements emulator {
      * Get the emulator's persistant storage.
      */
     public get_local_storage(): emulator_storage {
+        //NOTE: should the switch logic be inserted here? 
+        //if (nosave){
         return new emulator_storage();
+        //else return the savefile? 
     }
 
     /*
