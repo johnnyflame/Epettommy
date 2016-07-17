@@ -38,6 +38,9 @@ abstract class actor {
     /* actor position */
     x: number;
     y: number;
+    
+    /* Parent Actor */
+    parent: actor;
 
     /* Is the actor visible */
     visible: boolean;
@@ -65,7 +68,40 @@ abstract class actor {
         this.height = height;
     }
 
-    /* There are no get_ methods, as the components can be accessed publicly easily. */
+    
+    /* Calculate the absolute position with respect to the watch for drawing*/
+    abs_x(): number {
+        if (this.parent) {
+            return this.parent.abs_x() + this.x;
+        }
+        return this.x;
+    }
+
+    /* Calculate the absolute position with respect to the watch for drawing*/
+    abs_y(): number {
+        if (this.parent) {
+            return this.parent.abs_y() + this.y;
+        }
+        return this.y;
+    }
+
+    /* Calculate the size, enclosed by the parent*/
+    abs_width(): number {
+        if (this.parent) {
+            let max_width = this.parent.abs_width() - this.x;
+            return Math.min(max_width, this.width);
+        }
+        return this.width;
+    }
+
+    /* Calculate the size, enclosed by the parent*/
+    abs_height(): number {
+        if (this.parent) {
+            let max_h = this.parent.abs_height() - this.y;
+            return Math.min(max_h, this.height);
+        }
+        return this.height;
+    }
 }
 
 /* A scene is responsible for drawing all of the actors, and updating them all.
@@ -74,7 +110,7 @@ abstract class actor {
  * The purpose of putting everything in a scene means that changing the UI stage
  * is as simple as changing the active scene class.
  */
-class scene {
+class scene extends actor {
     /* list of actors */
     private actors: actor[] = [];
 
@@ -198,6 +234,14 @@ class application {
 }
 
 
+// Section of bitmap for sprite
+interface sprite_window {
+    x: number; // x offset inside bitmap
+    y: number; // y offset inside bitmap
+    w: number; // width inside bitmap
+    h: number; // height inside bitmap
+}
+
 /*
  * This actor displays a single sprite from a sprite sheet.
  */
@@ -214,19 +258,26 @@ class sprite extends actor {
     /* Constructs the sprite from the given image, corresponding to the offset position and size
      * inside the sprite-sheet image. Expects user to set position.
      */
-    constructor(private image: any, private offset_x: number, private offset_y: number,
-        private offset_width: number, private offset_height: number) {
+    constructor(private image: any, private window: sprite_window) {
         super();
-        this.width = offset_width;
-        this.height = offset_height;
+        this.width = this.window.w;
+        this.height = this.window.h;
     }
 
     /* Draw the sprite. */
     draw(ctx: graphics_context): void {
+        
+        // Calculate scales, so that when image is partially hidden by being
+        // outside parent, part of the image is cut off, rather than the 
+        // image simply being resized.
+        let hscale = this.abs_width() / this.width;
+        let vscale = this.abs_height() / this.height;
+        
         ctx.drawImage(
             this.image,
-            this.offset_x, this.offset_y, this.offset_width, this.offset_height,
-            this.x, this.y, this.width, this.height
+            this.window.x, this.window.y, this.window.w * hscale,
+            this.window.h * vscale,
+            this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height()
         );
     }
 
@@ -278,8 +329,8 @@ class button extends actor {
     private handle(ev: gesture_type, x: number, y: number) {
         if (this.visible
             && ev === gesture_type.tap // Tap
-            && this.x < x && x < this.x + this.width // x in button
-            && this.y < y && y < this.y + this.height// y in button
+            && this.abs_x() < x && x < this.abs_x() + this.abs_width() // x in button
+            && this.abs_y() < y && y < this.abs_y() + this.abs_height()// y in button
         ) {
             this.callback();
         }
@@ -312,7 +363,7 @@ class rect extends actor {
         ctx.fillStyle = this.fillStyle;
         ctx.lineWidth = this.lineWidth;
         ctx.beginPath();
-        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.rect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
@@ -344,7 +395,7 @@ class label extends actor {
         ctx.font = this.font;
         ctx.fillStyle = this.fill_style;
         ctx.textAlign = this.text_align;
-        ctx.fillText(this.label, this.x, this.y);
+        ctx.fillText(this.label, this.abs_x(), this.abs_y());
     }
 
     /* Update the actor. A label does nothing. */
@@ -408,18 +459,65 @@ class animator extends actor {
         this.frame = index;
         this.actors[this.frame].visible = true;
     }
+}
 
-    // Set the position of the animation - sets the position of all the actor frames
-    set_position(x: number, y: number) {
-        this.actors.forEach(function(item: actor) {
-            item.set_position(x, y);
-        });
-    }
 
-    // Set the size of the animation - sets the size of all the actor frames
-    set_size(width: number, height: number) {
-        this.actors.forEach(function(item: actor) {
-            item.set_size(width, height);
+/*
+ * This class is designed to be constructed at load time, well in advance of
+ * being used. The images are loaded asyncronously.
+ * 
+ * An instance is expecting to be constructed by taking a map/struct of names to
+ * image structs. Each structs contains the corresponding image source as a 
+ * string 'src', and a map/struct called regions, which is is a map of {x,y,w,h} 
+ * structs, with all numeric fields, corresponding to the subsection of the 
+ * image which corresponds to the region key. This is for use with sprite maps,
+ * and this is to allow the sources and sprite map areas to be specified in one
+ * place, with the drawing code referencing things by name.
+ * 
+ * e.g.
+ * ldr = new image_loader(
+        {
+            "tommy": {
+                src: "prototype/resources/slime.png",
+                regions: {
+                    "face1": {x: 0, y: 0, w: 95, h: 95},
+                    "face2": {x: 95, y: 0, w: 95, h: 95},
+                    others...
+                }
+            },
+            others...
         });
+ * 
+ *  After loading, we could then construct a sprite from the loaded image by
+ *      get_sprite"tommy", "face1");
+ *  which is equivalent to
+ *  
+ *  new sprite(ldr.get_image("tommy"), ldr.get_region("tommy", "face1"))
+ */
+class image_loader {
+    data: any;
+    
+    public get_image (img_name: string): any {
+        return this.data[img_name].image;
     }
+    
+    public get_region (img_name: string, region: any): any {
+        return this.data[img_name].regions[region];
+    }
+    
+    public get_sprite (img_name: string, region: any): sprite {
+        return new sprite (this.data[img_name].image, 
+        this.data[img_name].regions[region]);
+    }
+    
+    constructor (data: any) {
+        this.data = data;
+        // Make a new Image object for each item and give it the 
+        // corresponding src
+        for (let item in this.data) {
+            this.data[item].image = new Image();
+            this.data[item].image.src = this.data[item].src;
+        };
+    }
+    
 }

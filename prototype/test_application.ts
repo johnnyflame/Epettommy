@@ -24,7 +24,7 @@ class test_application extends application {
         // Put this box into a button, which will call quit when tapped
         this.button1 = new button(box1, () => this.quit());
         // Make a new sprite
-        let sprite1 = new sprite(this.sprite_img, 0, 0, 95, 95);
+        let sprite1 = new sprite(this.sprite_img, {x: 0, y: 0, w: 95, h: 95});
         sprite1.set_position(10, 10);
         // Turn it into a button to switch scenes
         this.button2 = new button(sprite1, () => this.swap_scenes());
@@ -55,7 +55,7 @@ class test_application extends application {
         // Add the same label
         this.other_scene.add(label1);
         // Make a new sprite
-        let sprite2 = new sprite(this.sprite_img, 95, 0, 95, 95);
+        let sprite2 = new sprite(this.sprite_img, {x: 95, y: 0, w: 95, h: 95});
         sprite2.set_position(200, 100);
         this.other_scene.add(sprite2);
         
