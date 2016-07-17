@@ -124,4 +124,13 @@ class tommy_model {
     play () {
         this.emotion = this.emotion + this.stat_increment;
     }
+    
+    /*
+     * Generates a game_player object to represent the pet
+     */
+     generate_push_player(): game_player {
+         let p = new user_player(this.get_strength(), this.get_hunger());
+         p.actor = ePetTommy_gfx.loader.get_sprite("tommy", "happy");
+         return p;
+     }
 }
