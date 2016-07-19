@@ -22,7 +22,45 @@ class tommy_model {
     private max_emotion: number = 1.0;
     // Private member min_strength, the minimum strength limit.
     private min_strength: number = 1.0;
+    // Key for saving and receiving pet values.    
+    private tommy_state_key : string = "tommy_state"; 
    
+    
+    /*
+     * Constructor
+     * Load existing Tommy data if it is found on local storage
+     * Otherwise create a Tommy with default values. 
+     */
+
+       constructor(){
+          
+           let s = os.get_local_storage();
+           let data = s.get_object("tommy_state");
+           
+           if(data===null){
+               console.log("First execution, no save found.")
+           }
+           else{
+           this.health = data.health;
+           this.hunger = data.hunger;
+           this.emotion = data.emotion;
+           this.strength = data.strength;
+           }
+         }
+        
+       /*
+        * Saves the state of the pet model to local storage when exiting the application.
+        */
+       save_data(): any {
+        let store = os.get_local_storage();
+        store.set_object("tommy_state",{
+            health: this.health,
+            hunger: this.hunger,
+            emotion: this.emotion,
+            strength: this.strength,  
+        });
+       }
+     
     /*
      * Get the pets health.
      */
