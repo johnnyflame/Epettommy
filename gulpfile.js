@@ -5,7 +5,7 @@
 var gulp = require('gulp');
 var ts = require('gulp-typescript');
 var del = require('del');
-
+var typedoc = require("gulp-typedoc");
 var tslint = require("gulp-tslint");
 
 var our_code = ['./**/*.ts', '!./node_modules/**'];
@@ -33,4 +33,25 @@ gulp.task("tslint", function () {
 
 gulp.task("test", function () {
     return console.log("QUnit tests can be run from the browser");
+});
+ 
+gulp.task("typedoc", function() {
+    return gulp
+        .src(our_code)
+        .pipe(typedoc({
+            // TypeScript options (see typescript docs) 
+            module: "commonjs",
+            target: "ES3",
+            includeDeclarations: true,
+ 
+            // Output options (see typedoc docs) 
+            out: "./doc",
+            json: "./doc/output.json",
+ 
+            // TypeDoc options (see typedoc docs) 
+            name: "ePetTommy",
+            ignoreCompilerErrors: false,
+            version: true
+        }))
+    ;
 });

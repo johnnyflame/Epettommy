@@ -3,3 +3,4 @@
 !/third_party
 !gulpfile.js
 node_modules
+/doc/
