@@ -286,7 +286,7 @@ class emulator implements emulator {
      * array of registered gesture event handlers.
      */
     private internal_gesture_reciever(ev: any) {
-        console.log("Event --- " + JSON.stringify(ev));
+        // console.log("Event --- " + JSON.stringify(ev));
         // Translate mouse to internal coordinates
         let rect = this.display.getBoundingClientRect();
         ev.center.x = ev.center.x - rect.left;

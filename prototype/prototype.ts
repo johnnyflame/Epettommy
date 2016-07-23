@@ -41,24 +41,66 @@ class tommy_home extends scene {
 
     private game_button: button;
     private gest_handle_id: gesture_callback_id;
+    private tommy_slider: animator;
+    
+    private img_happy = 0; 
+    private img_excited = 1; 
+    private img_shock = 2; 
+    private img_sad = 3; 
+    private img_sick = 4; 
+    private img_dead = 5;
+    
+    private barwidth = 200;
+    
+    private health: rect;
+    private hunger: rect;
 
     // Set up the images, etc
     constructor(private app: ePetTommy) {
         super();
 
-        let tommy = ePetTommy_gfx.loader.get_sprite("tommy", "dead");
-        tommy.set_position(80, 80);
-        tommy.set_size(160, 160);
-        let game_btn = new button(tommy,
-            () => this.app.set_scene(
-                new tommy_game(this.app, new brick_player()))
-        );
-        this.add(game_btn);
+        this.tommy_slider = new animator(0);
+        this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "happy"));
+        this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "excited"));
+        this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "shock"));
+        this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "sad"));
+        this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "sick"));
+        this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "dead"));
+        
+        this.tommy_slider.set_position(80, 80);
+        this.tommy_slider.set_size(160, 160);
+        this.add(this.tommy_slider);
+        
+        this.health = new rect("#FF0000", "none");
+        this.hunger = new rect("#00FF00", "none");
+        
+        this.add(this.health);
+        this.add(this.hunger);
+        
+        let hoff = (os.get_graphics_context().width() - this.barwidth) / 2;
+        this.health.set_position(hoff, 250);
+        this.hunger.set_position(hoff, 250 + 10);
     }
 
     // Update the sliders, and the player's state
     update(dt: number) {
         super.update(dt);
+        let model = this.app.pet_model;
+        
+        if (model.get_health() <= 0) {
+            this.tommy_slider.set_frame(this.img_dead);
+        } else if (model.get_health() <= 0.2 || model.get_hunger() > 1) {   
+            this.tommy_slider.set_frame(this.img_sick);
+        } else if (model.get_emotion() <= 0.2) {
+            this.tommy_slider.set_frame(this.img_sad);
+        } else if (model.get_emotion() < 0.5) {
+            this.tommy_slider.set_frame(this.img_shock);
+        } else if (model.get_emotion() >= 0.8) {
+            this.tommy_slider.set_frame(this.img_excited);
+        }
+
+        this.health.set_size(this.barwidth * this.app.pet_model.get_health(), 10);
+        this.hunger.set_size(this.barwidth * this.app.pet_model.get_hunger(), 10);
     }
     
     init () {
@@ -88,6 +130,10 @@ class tommy_home extends scene {
         case gesture_type.swiperight:
                 this.app.set_scene(new tommy_food(this.app));
             break;
+        case gesture_type.swipedown:
+                this.app.set_scene(
+                    new tommy_game(this.app, new brick_player()));
+            break;
         }
     }
 
@@ -102,12 +148,52 @@ class tommy_stats extends scene {
     
     private gest_handle_id: gesture_callback_id;
     
+    private health: rect;
+    private hunger: rect;
+    private strength: rect;
+    private emotion: rect;
+    
+    private barheight = 30;
+    private barwidth = 200;
+    
     constructor (private app: ePetTommy) {
         super();
         let img = ePetTommy_gfx.loader.get_sprite("space", "0");
         img.set_position(0, 0);
         img.set_size(os.get_graphics_context().width(), os.get_graphics_context().height());
         this.add(img);
+        
+        this.health = new rect("#FF0000", "none");
+        this.hunger = new rect("#00FF00", "none");
+        this.strength = new rect("#00FFFF", "none");
+        this.emotion = new rect("#FFFF00", "none");
+        
+        let vpad = (os.get_graphics_context().height() - 4 * this.barheight) / 5;
+        let hpad = (os.get_graphics_context().width() - this.barwidth) / 2;
+        let tpad = 20;
+        
+        this.health.set_position(hpad, vpad);
+        this.hunger.set_position(hpad, (vpad + this.barheight) + vpad);
+        this.strength.set_position(hpad, (vpad + this.barheight) * 2 + vpad);
+        this.emotion.set_position(hpad, (vpad + this.barheight) * 3 + vpad);
+        
+        this.add(this.health);
+        this.add(this.hunger);
+        this.add(this.strength);
+        this.add(this.emotion);
+
+        let text = new label ("Health", "10px sans-serif", "#FFFFFF", "right");
+        text.set_position(hpad, vpad + tpad);
+        this.add(text);
+        text = new label ("Hunger", "10px sans-serif", "#FFFFFF", "right");
+        text.set_position(hpad, (vpad + this.barheight) + vpad + tpad);
+        this.add(text);
+        text = new label ("Strength", "10px sans-serif", "#FFFFFF", "right");
+        text.set_position(hpad, (vpad + this.barheight) * 2 + vpad + tpad);
+        this.add(text);
+        text = new label ("Emotion", "10px sans-serif", "#FFFFFF", "right");
+        text.set_position(hpad, (vpad + this.barheight) * 3 + vpad + tpad);
+        this.add(text);
     }
     
     init () {
@@ -117,6 +203,13 @@ class tommy_stats extends scene {
             (e: gesture_type, x: number, y: number) => 
                 this.gest_handle(e, x, y)
         );
+    }
+    
+    update () {
+        this.health.set_size(this.barwidth * this.app.pet_model.get_health(), this.barheight);
+        this.hunger.set_size(this.barwidth * this.app.pet_model.get_hunger(), this.barheight);
+        this.strength.set_size(this.barwidth * this.app.pet_model.get_strength(), this.barheight);
+        this.emotion.set_size(this.barwidth * this.app.pet_model.get_emotion(), this.barheight);
     }
     
     end () {
@@ -153,7 +246,7 @@ class tommy_food extends scene {
         feed_sal.set_position(10, 10);
         feed_sal.set_size(100, 100);
         let sal_button = new button(feed_sal,
-            () => this.app.pet_model.feed(0.2)
+            () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
         );
         this.add(sal_button);
         // Salad
@@ -161,7 +254,7 @@ class tommy_food extends scene {
         feed_sala.set_position(210, 10);
         feed_sala.set_size(100, 100);
         let sala_button = new button(feed_sala,
-            () => this.app.pet_model.feed(0.2)
+            () => {this.app.pet_model.feed(0.1); this.app.go_home(); }
         );
         this.add(sala_button);
         // Banana
@@ -169,7 +262,7 @@ class tommy_food extends scene {
         feed_ba.set_position(110, 110);
         feed_ba.set_size(100, 100);
         let ba_button = new button(feed_ba,
-            () => this.app.pet_model.feed(0.2)
+            () => {this.app.pet_model.feed(0.3); this.app.go_home(); }
         );
         this.add(ba_button);
         // Burger
@@ -177,7 +270,7 @@ class tommy_food extends scene {
         feed_bu.set_position(10, 210);
         feed_bu.set_size(100, 100);
         let bu_button = new button(feed_bu,
-            () => this.app.pet_model.feed(0.2)
+            () => {this.app.pet_model.feed(0.5); this.app.go_home(); }
         );
         this.add(bu_button);
         // Pork Rice
@@ -185,7 +278,7 @@ class tommy_food extends scene {
         feed_pr.set_position(210, 210);
         feed_pr.set_size(100, 100);
         let pr_button = new button(feed_pr,
-            () => this.app.pet_model.feed(0.2)
+            () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
         );
         this.add(pr_button);
     }

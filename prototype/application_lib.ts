@@ -1,4 +1,4 @@
-/*
+/**
  * This file contains reusable code for building (game) applications. This
  * code was inspired by the quintus and excalibur web game engines.
  * 
@@ -17,8 +17,6 @@
  * - A button, which makes any other actor accept tap events
  * - An animator, which allows changing between other actors as frames.
  * 
- * To make this completely recursive, it is a possibility that the scene
- * will be made to be an actor as well, so scenes can contain sub-scenes.
  */
 
 // Magic comment to include definitions, but not have to worry
@@ -26,8 +24,13 @@
 /// <reference path="../emulator/emulator.api.ts"/>
 
 
-/* Actors are the units which make up the scene. The scene is the entire view, 
+/**
+ * Actors are the units which make up the scene. The scene is the entire view, 
  * and is responsible for drawing the display.
+ * 
+ * If the parent actor is defined, then the position is relative to the parent's
+ * position (calculated by the abs functions), and the width and height is given
+ * as that contained by the parent.
  */
 abstract class actor {
 
@@ -39,16 +42,17 @@ abstract class actor {
     x: number;
     y: number;
     
-    /* Parent Actor */
+    /** Parent Actor */
     parent: actor;
 
-    /* Is the actor visible */
+    /** Is the actor visible */
     visible: boolean;
 
-    /* draw the actor on the display */
+    /** draw the actor on the display */
     abstract draw(ctx: graphics_context): void;
 
-    /* Update the actor. This is given dt - the amount of time that has passed
+    /**
+     * Update the actor. This is given dt - the amount of time that has passed
      * since the last time the scene was updated. In milliseconds.
      * 
      * This would be where, for example, the actor would change it's position, or
@@ -56,20 +60,20 @@ abstract class actor {
      */
     abstract update(dt: number): void;
 
-    /* Put it at the given position */
+    /** Put it at the given position */
     set_position(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
 
-    /* Set the size. */
+    /** Set the size. */
     set_size(width: number, height: number) {
         this.width = width;
         this.height = height;
     }
 
     
-    /* Calculate the absolute position with respect to the watch for drawing*/
+    /** Calculate the absolute position with respect to the watch for drawing*/
     abs_x(): number {
         if (this.parent) {
             return this.parent.abs_x() + this.x;
@@ -77,7 +81,7 @@ abstract class actor {
         return this.x;
     }
 
-    /* Calculate the absolute position with respect to the watch for drawing*/
+    /** Calculate the absolute position with respect to the watch for drawing*/
     abs_y(): number {
         if (this.parent) {
             return this.parent.abs_y() + this.y;
@@ -85,7 +89,7 @@ abstract class actor {
         return this.y;
     }
 
-    /* Calculate the size, enclosed by the parent*/
+    /** Calculate the size, enclosed by the parent*/
     abs_width(): number {
         if (this.parent) {
             let max_width = this.parent.abs_width() - this.x;
@@ -94,7 +98,7 @@ abstract class actor {
         return this.width;
     }
 
-    /* Calculate the size, enclosed by the parent*/
+    /** Calculate the size, enclosed by the parent*/
     abs_height(): number {
         if (this.parent) {
             let max_h = this.parent.abs_height() - this.y;
@@ -104,44 +108,53 @@ abstract class actor {
     }
 }
 
-/* A scene is responsible for drawing all of the actors, and updating them all.
+/**
+ * A scene is responsible for drawing all of the actors, and updating them all.
  * draw() and update() will be called from the main application loop.
  * 
  * The purpose of putting everything in a scene means that changing the UI stage
  * is as simple as changing the active scene class.
  */
 class scene extends actor {
-    /* list of actors */
+    /** list of actors to display */
     private actors: actor[] = [];
 
-    /* Add an actor to the scene. */
+    /** Add an actor to the scene. */
     public add(item: actor): void {
         this.actors.push(item);
     }
 
-    /* Draw the scene on the given graphics context */
+    /** Draw the scene on the given graphics context */
     public draw(ctx: graphics_context): void {
         this.actors.forEach(function(item: actor) {
             item.draw(ctx);
         });
     }
 
-    /* Update all the actors. */
+    /** Update all the actors. */
     public update(dt: number): void {
         this.actors.forEach(function(item: actor) {
             item.update(dt);
         });
     }
 
-    /* Initialize the scene. For implementation, this might be where all the
-     actions would be set up. */
+    /**
+     * Initialize the scene.
+     * Here we set the children as visible.
+     * For inheriting implementation, this might be where all actions/gestures
+     * would be set up.
+     */
     public init() {
         this.actors.forEach(function(item: actor) {
             item.visible = true;
         });
     }
 
-    /* Finish the scene, e.g. remove action requests. */
+    /** 
+     * Finish the scene.
+     * Here we set the children as not visible.
+     * In inheriting classes: e.g. remove gesture requests.
+     */
     public end() {
         this.actors.forEach(function(item: actor) {
             item.visible = false;
@@ -153,7 +166,7 @@ class scene extends actor {
 
 
 
-/*
+/**
  * Application class. Contains main loop and exit controls
  */
 class application {
@@ -164,6 +177,9 @@ class application {
     private last_time: number;
     private curr_time: number;
 
+    /**
+     * Setup the application, ready to run
+     */
     public init(): void {
         this.running = true;
 
@@ -173,8 +189,9 @@ class application {
             this.current_scene.init();
     }
 
-    /*
-     * Run Main Loop
+    /**
+     * Run Main Loop. This is expected to be called by the os quite frequently
+     * to redraw the scene, and call update().
      */
     public render(): boolean {
 
@@ -203,14 +220,14 @@ class application {
         return true;
     }
 
-    /*
+    /**
      * Set game loop to finish
      */
     public quit(): void {
         this.running = false;
     }
 
-    /*
+    /**
      * Set/Change the scene being drawn
      */
     public set_scene(new_scene: scene): void {
@@ -220,7 +237,8 @@ class application {
         this.current_scene.init();
     }
 
-    /* Register this application with the given operating system under the given
+    /**
+     * Register this application with the given operating system under the given
      * name
      */
     register_with_os(name: string, operating_system: emulator): void {
@@ -234,29 +252,27 @@ class application {
 }
 
 
-// Section of bitmap for sprite
+/** Section/window in bitmap containing a sprite */
 interface sprite_window {
-    x: number; // x offset inside bitmap
-    y: number; // y offset inside bitmap
-    w: number; // width inside bitmap
-    h: number; // height inside bitmap
+    /** x offset inside bitmap */
+    x: number; 
+    /** y offset inside bitmap */
+    y: number;
+    /** width inside bitmap */
+    w: number;
+    /** height inside bitmap */
+    h: number;
 }
 
-/*
+/**
  * This actor displays a single sprite from a sprite sheet.
  */
 class sprite extends actor {
 
-    /* Displayed height and width of the sprite */
-    public width: number;
-    public height: number;
-
-    /* Displayed Sprite position */
-    public x: number;
-    public y: number;
-
-    /* Constructs the sprite from the given image, corresponding to the offset position and size
-     * inside the sprite-sheet image. Expects user to set position.
+    /**
+     * Constructs the sprite from the given image, corresponding to the offset
+     * position and size inside the sprite-sheet image. Expects user to set
+     * position.
      */
     constructor(private image: any, private window: sprite_window) {
         super();
@@ -264,7 +280,7 @@ class sprite extends actor {
         this.height = this.window.h;
     }
 
-    /* Draw the sprite. */
+    /** Draw the sprite. */
     draw(ctx: graphics_context): void {
         
         // Calculate scales, so that when image is partially hidden by being
@@ -281,7 +297,7 @@ class sprite extends actor {
         );
     }
 
-    /* Update the actor. A Sprite does nothing. */
+    /** Update the actor. A Sprite does nothing. */
     update(dt: number): void {
     }
 
@@ -289,7 +305,7 @@ class sprite extends actor {
 
 
 
-/*
+/**
  * Simple button. Recieves tap events when visible. Displays another actor.
  */
 class button extends actor {
@@ -299,7 +315,7 @@ class button extends actor {
     private handler: gesture_callback_id;
 
 
-    // Make a new button out of an actor, with a given callback on tap
+    /** Make a new button out of an actor, with a given callback */
     constructor(display: actor, callback: () => void) {
         super();
         this.display = display;
@@ -315,17 +331,17 @@ class button extends actor {
         this.y = display.y;
     }
 
-    // Draw the sub-actor
+    /** Draw the sub-actor */
     public draw(ctx: graphics_context): void {
         this.display.draw(ctx);
     }
 
-    // Update the sub-actor
+    /** Update the sub-actor */
     public update(dt: number): void {
         this.display.update(dt);
     }
 
-    // Call the callback if the button was tapped (and button is active)
+    /** Call the callback if the button was tapped (and button is active) */
     private handle(ev: gesture_type, x: number, y: number) {
         if (this.visible
             && ev === gesture_type.tap // Tap
@@ -336,20 +352,20 @@ class button extends actor {
         }
     }
 
-    // Unregister the button
+    /** Unregister the button. */
     public finish(): void {
         os.remove_gesture_handler(this.handler);
     }
 
 }
 
-/*
+/**
  * Simple filled/stroked rectangle
  */
 
 class rect extends actor {
 
-    /*
+    /**
      * Construct a rectangle with the given fillStyle, strokeStyle and lineWidth
      * as per the canvas 2d context.
      */
@@ -357,7 +373,7 @@ class rect extends actor {
         super();
     }
 
-    /* Draw the sprite. */
+    /** Draw the rect. */
     draw(ctx: graphics_context): void {
         ctx.strokeStyle = this.strokeStyle;
         ctx.fillStyle = this.fillStyle;
@@ -369,16 +385,16 @@ class rect extends actor {
         ctx.stroke();
     }
 
-    /* Update the actor. A rect does nothing. */
+    /** Update the actor. A rect does nothing. */
     update(dt: number): void {
     }
 }
 
-/* 
+/* *
  * Simple text Label. Width and Height are ignored.
  */
 class label extends actor {
-    /*
+    /**
      * Construct a new label of the given string
      * Also with the given font, fillStyle (as per canvas 2d context), and alignment
      */
@@ -390,7 +406,7 @@ class label extends actor {
         super();
     }
 
-    /* Draw the label. */
+    /** Draw the label. */
     draw(ctx: graphics_context): void {
         ctx.font = this.font;
         ctx.fillStyle = this.fill_style;
@@ -398,12 +414,12 @@ class label extends actor {
         ctx.fillText(this.label, this.abs_x(), this.abs_y());
     }
 
-    /* Update the actor. A label does nothing. */
+    /** Update the actor. A label does nothing. */
     update(dt: number): void {
     }
 }
 
-/*
+/**
  * Animate an array of actors with a given frame rate, or set the frame rate
  * to zero, and use set_frame() to select the shown actor.
  * 
@@ -412,30 +428,32 @@ class label extends actor {
  */
 class animator extends actor {
     private frame: number; // Index of current frame
-    private actors: actor[]; // List of frames
+    private actors: actor[] = []; // List of frames
     private accumulator: number; // Time accumulated since frame was meant to start (millisec)
 
-    // Construct an animator at the given frame rate. Give fps = 0 to disable 
-    // automatic frame selection, and use set_frame;
+    /** 
+     * Construct an animator at the given frame rate. Give fps = 0 to disable
+     * automatic frame selection, and use set_frame;
+     */
     constructor(private fps: number) {
         super();
         this.accumulator = 0;
+        this.frame = 0;
     }
 
-    // Add a frame (resets current frame to 0)
+   /** Add a frame */
     add(item: actor) {
         this.actors.push(item);
     }
 
-    // Draw the current actor
+    /** Draw the current frame */
     draw(ctx: graphics_context) {
         if (this.actors.length === 0)
             return;
-
         this.actors[this.frame].draw(ctx);
     }
 
-    // Select current frame if fps != 0
+    /** Select current frame if fps != 0 */
     update(dt: number) {
         if (this.fps === 0 || this.actors.length === 0)
             return; // Not auto animated
@@ -452,8 +470,22 @@ class animator extends actor {
         // Sort out the accumulator
         this.accumulator -= 1000 * frames / this.fps;
     }
+    
+    /** Set the size of all the frames */
+    set_size(w: number, h: number) {
+        this.actors.forEach(function(item: actor) {
+            item.set_size(w, h);
+        });
+    }
+    
+    /** Set the position of all the frames */
+    set_position(x: number, y: number) {
+        this.actors.forEach(function(item: actor) {
+            item.set_position(x, y);
+        });
+    }
 
-    // Set the current frame
+    /** Set the current frame */
     set_frame(index: number) {
         this.actors[this.frame].visible = false;
         this.frame = index;
@@ -462,7 +494,7 @@ class animator extends actor {
 }
 
 
-/*
+/**
  * This class is designed to be constructed at load time, well in advance of
  * being used. The images are loaded asyncronously.
  * 
@@ -475,6 +507,7 @@ class animator extends actor {
  * place, with the drawing code referencing things by name.
  * 
  * e.g.
+ * ```typescript
  * ldr = new image_loader(
         {
             "tommy": {
@@ -487,7 +520,7 @@ class animator extends actor {
             },
             others...
         });
- * 
+ * ```
  *  After loading, we could then construct a sprite from the loaded image by
  *      get_sprite"tommy", "face1");
  *  which is equivalent to
@@ -497,19 +530,34 @@ class animator extends actor {
 class image_loader {
     data: any;
     
+    /**
+     * Get the Image for the given name in the image data.
+     * This is not gauranteed to be loaded.
+     */
     public get_image (img_name: string): any {
         return this.data[img_name].image;
     }
     
+    /**
+     * Get the region/sprite_window structure with the given name, on the given
+     * image
+     */
     public get_region (img_name: string, region: any): any {
         return this.data[img_name].regions[region];
     }
     
+    /**
+     * Construct a new sprite made from the given region of the given image.
+     */
     public get_sprite (img_name: string, region: any): sprite {
         return new sprite (this.data[img_name].image, 
         this.data[img_name].regions[region]);
     }
     
+    /**
+     * Constructs an Image for each item in the data, and sets it to do an async
+     * load.
+     */
     constructor (data: any) {
         this.data = data;
         // Make a new Image object for each item and give it the 
