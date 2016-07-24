@@ -156,14 +156,13 @@ class brick_player extends game_player {
         this.actor = ePetTommy_gfx.loader.get_sprite("tommy", "happy"); 
         // TODO: Get brick image
     }
-        
+
     get_push(): number {return 0; }
 
     get_direction(): direction {return direction.LEFT; }
  
     request_jump(): boolean {return false; }
     
-
     get_mass (): number {return 1; }
     get_stamina (): number {return 1; }
     game_over (won: boolean): void {}

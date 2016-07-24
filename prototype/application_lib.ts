@@ -315,7 +315,9 @@ class button extends actor {
     private handler: gesture_callback_id;
 
 
-    /** Make a new button out of an actor, with a given callback */
+    /** Make a new button out of an actor, with a given callback. Note, position
+     * and size of the actor should already be set.
+     */
     constructor(display: actor, callback: () => void) {
         super();
         this.display = display;
@@ -390,7 +392,7 @@ class rect extends actor {
     }
 }
 
-/* *
+/**
  * Simple text Label. Width and Height are ignored.
  */
 class label extends actor {
