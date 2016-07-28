@@ -131,26 +131,27 @@ class tommy_model {
      * 0.1 for healthy meal, 0.5 for unhealthy.
      */
     feed(meal_quality: number) {
-        this.hunger = this.hunger + meal_quality;
         
-        if (this.hunger < 0) {
-            this.hunger = 0;
-        } else if (this.hunger > this.max_hunger) {
-            this.hunger = this.max_hunger;
-        }
         // Adsust emotion and health based on food quality.
-        if (meal_quality > 0.4) {
-            this.emotion = this.emotion + this.stat_increment * 2;
-            this.health = this.health - this.stat_increment * 2;
+        if (meal_quality === 0.5) {
+            set_health(this.health - stat_increment * 2);
+            set_emotion(this.emotion + stat_increment * 2);
+            set_hunger(this.hunger + stat_increment * 5);
         }else if (meal_quality === 0.4) {
-            this.emotion = this.emotion + this.stat_increment;
-            this.health = this.health - this.stat_increment;
+            set_health(this.health - stat_increment);
+            set_emotion(this.emotion + stat_increment);
+            set_hunger(this.hunger + stat_increment*4);
+        }else if (meal_quality === 0.3) {
+            set_health(this.health + stat_increment);
+            set_hunger(this.hunger + stat_increment*3);        
         }else if (meal_quality === 0.2) {
-            this.emotion = this.emotion - this.stat_increment;
-            this.health = this.health + this.stat_increment;
-        }else if (meal_quality < 0.2) {
-            this.emotion = this.emotion - this.stat_increment * 2;
-            this.health = this.health + this.stat_increment * 2;
+            set_health(this.health + stat_increment);
+            set_emotion(this.emotion - stat_increment);
+            set_hunger(this.hunger + stat_increment*2);
+        }else if (meal_quality === 0.1) {
+            set_health(this.health + stat_increment * 2);
+            set_emotion(this.emotion - stat_increment * 2);
+            set_hunger(this.hunger + stat_increment);
         }
     }
     
