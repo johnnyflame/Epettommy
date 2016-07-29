@@ -134,24 +134,24 @@ class tommy_model {
         
         // Adsust emotion and health based on food quality.
         if (meal_quality === 0.5) {
-            set_health(this.health - stat_increment * 2);
-            set_emotion(this.emotion + stat_increment * 2);
-            set_hunger(this.hunger + stat_increment * 5);
+            this.set_health(this.health - this.stat_increment * 2);
+            this.set_emotion(this.emotion + this.stat_increment * 2);
+            this.set_hunger(this.hunger + this.stat_increment * 5);
         }else if (meal_quality === 0.4) {
-            set_health(this.health - stat_increment);
-            set_emotion(this.emotion + stat_increment);
-            set_hunger(this.hunger + stat_increment*4);
+            this.set_health(this.health - this.stat_increment);
+            this.set_emotion(this.emotion + this.stat_increment);
+            this.set_hunger(this.hunger + this.stat_increment * 4);
         }else if (meal_quality === 0.3) {
-            set_health(this.health + stat_increment);
-            set_hunger(this.hunger + stat_increment*3);        
+            this.set_health(this.health + this.stat_increment);
+            this.set_hunger(this.hunger + this.stat_increment * 3);        
         }else if (meal_quality === 0.2) {
-            set_health(this.health + stat_increment);
-            set_emotion(this.emotion - stat_increment);
-            set_hunger(this.hunger + stat_increment*2);
+            this.set_health(this.health + this.stat_increment);
+            this.set_emotion(this.emotion - this.stat_increment);
+            this.set_hunger(this.hunger + this.stat_increment * 2);
         }else if (meal_quality === 0.1) {
-            set_health(this.health + stat_increment * 2);
-            set_emotion(this.emotion - stat_increment * 2);
-            set_hunger(this.hunger + stat_increment);
+            this.set_health(this.health + this.stat_increment * 2);
+            this.set_emotion(this.emotion - this.stat_increment * 2);
+            this.set_hunger(this.hunger + this.stat_increment);
         }
     }
     
