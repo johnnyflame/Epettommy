@@ -10,7 +10,9 @@ abstract class game_player {
     // is added to a game
     
     // y-velocity. Some accounting for jumping
-    vy: number;
+    vy: number = 0;
+    // x-velocity. Smoothing out player movements
+    vx: number = 0;
     
     protected jumping: boolean;
        
@@ -83,7 +85,7 @@ class user_player extends game_player {
         this.dir = direction.RIGHT;
         this.mass = hunger;
         
-        this.stamina_decay = 1 / (50 * strength);
+        this.stamina_decay = 1 / (100 * strength);
         
     }
     
@@ -230,32 +232,6 @@ class game_physics {
         return (a1.abs_x() + a1.abs_width() / 2) < 
             (a2.abs_x() + a2.abs_width() / 2);
     }
-    
-    // Tests if a1 is hitting a2 from above.
-    colliding_from_above (a1: actor, a2: actor): boolean {
-        let above_x = a1.abs_x();
-        let min_x = a2.abs_x() - a1.abs_width();
-        let max_x = a2.abs_x() + a2.abs_width();
-
-        if (above_x > min_x && above_x < max_x) {
-            // If it is vertically aligned
-
-            if (this.is_above(a1, a2) 
-                    && a1.abs_y() >= a2.abs_y() - a1.abs_height()
-               ) {
-                   // There is a collision
-                   return true;
-               } else {
-                   // No collision
-                   return false;
-               }
-
-        } else {
-            // not vertically aligned 
-            return false;
-        }
-        
-    }
 
     // Tests if a1 and a2 are touching/intersecting.
     colliding (a1: actor, a2: actor): boolean {
@@ -278,7 +254,7 @@ class game_physics {
      * Is `above` directly above `below`
      * Examines `above` mid-point
      */
-    direct_above(below: actor, above: actor): boolean {
+    directly_above(below: actor, above: actor): boolean {
         let above_mid = above.abs_x() + (above.abs_width() / 2);
         return (above_mid > below.abs_x() && 
             above_mid < below.abs_x() + below.abs_width());
@@ -310,66 +286,84 @@ class game_physics {
             }
         }
     }
+    
+    /**
+     * Perform frictional drag, to slow players down.
+     */
+    do_drag(p: game_player, dt: number): void {
+        let time_constant = (2 * 1000); // 1/e decay time constant in ms 
+        p.vx -= dt * p.vx / time_constant;
+    }
+    
+    do_move(p: game_player, dt:number): void {
+        let dt_sec = dt / 1000; // Convert to seconds
+        let vx_scale = 10; // so vx in 30pix/sec
+        p.move(p.vx * vx_scale * dt_sec, 0)
+        
+    }
 
     /** Perform step of the game.
      * @returns the winner if the game is over, or undefined.
      */
     update (a1: game_player, a2: game_player, platform: actor, dt: number): game_player {
         // Are we done?
-        if (!this.direct_above(platform, a1.actor)) {
+        if (!this.directly_above(platform, a1.actor)) {
             a1.game_over(false);
             a2.game_over(true);
             // Signal game over
             return a2;
-        } else if (!this.direct_above(platform, a2.actor)) {
+        } else if (!this.directly_above(platform, a2.actor)) {
             a1.game_over(true);
             a2.game_over(false);
             // Signal game over
             return a1;
         }
         
+        this.do_drag(a1, dt);
+        this.do_drag(a2, dt);
+        
         // Make life easier
         let right = (this.is_left(a1.actor, a2.actor) ? a2 : a1);
         let left  = (this.is_left(a1.actor, a2.actor) ? a1 : a2);
-        
-        // Handle pushing
-        let push_step = 10;
 
         // Calculate different step distances.
-        let dist1 = left.get_push() 
+        let push1 = left.get_push() 
             * ((left.get_direction() === direction.RIGHT) ? 1 : -1)
-            * (left.get_stamina() + 0.1)
-            * push_step;
-        let dist2 = right.get_push() 
+            * (left.get_stamina() + 0.1);
+        let push2 = right.get_push() 
             * (right.get_stamina() + 0.1)
-            * ((right.get_direction() === direction.RIGHT) ? 1 : -1)
-            * push_step;
-            
-        if (!this.colliding(left.actor, right.actor)) {
-            // If they are not colliding, then they simply move those amounts
-            left.move(dist1, 0);
-            right.move(dist2, 0);
-        } else if (left.get_direction() === direction.LEFT 
-            && right.get_direction() === direction.RIGHT) {
-            // They are pushing away from each other, so simply move like above
-            left.move(dist1, 0);
-            right.move(dist2, 0);
-        } else if (left.get_direction() === right.get_direction() 
-            && dist1 < dist2) {
-            // They are moving in the same direction, but moving apart
-            left.move(dist1, 0);
-            right.move(dist2, 0);
-        } else {
-            // Either they are pushing in the same direction, or they are
-            // pushing against each other. Sign of dist1/2 will take care
-            // of this
-            
-            let dist = dist1 / right.get_mass() + dist2 / left.get_mass();
+            * ((right.get_direction() === direction.RIGHT) ? 1 : -1);
+           
+        left.vx  += push1;
+        right.vx += push2; 
+        if (this.colliding(left.actor, right.actor) && 
+                (
+                    (right.vx <= 0 && left.vx >= 0) ||  // Inwards
+                    (right.vx * left.vx > 0 &&  // Same direction, and
+                        (   // one pushing into the other
+                            (right.vx > 0 && left.vx > right.vx) ||
+                            (right.vx < 0 && left.vx < right.vx)
+                        )
+                    )
+                )     
+            ) {
+            // Collision into each other (perfect inelastic). Conserve momentum.
+            let velocity = (push1 * left.get_mass() + push2 * right.get_mass()) /
+                            (left.get_mass() + right.get_mass());
             // Move them both
-            left.move(dist, 0);
-            right.move(dist, 0);
+            left.vx  = velocity;
+            right.vx = velocity;
             
         }
+        
+        // Horizontal movements
+        this.do_move(left, dt);
+        this.do_move(right, dt);
+        // Vertical movements
+        this.do_jump(right, platform, dt);
+        this.do_jump(left, platform, dt);
+
+        // Fix collisions
         if (this.colliding(left.actor, right.actor)) {
             // Find overlap
             let diff = (left.actor.abs_x() + left.actor.abs_width())
@@ -383,8 +377,8 @@ class game_physics {
             }
         }
         
-        this.do_jump(right, platform, dt);
-        this.do_jump(left, platform, dt);
+
+        
 
         return undefined;
     }
