@@ -245,8 +245,8 @@ class application {
         operating_system.register_application(
             name,
             () => this.init(),
-            () => this.render()
-
+            () => this.render(),
+            () => this.quit()
         );
     }
 }
@@ -381,7 +381,12 @@ class rect extends actor {
         ctx.fillStyle = this.fillStyle;
         ctx.lineWidth = this.lineWidth;
         ctx.beginPath();
-        ctx.rect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
+        if (this.fillStyle === "none")
+            ctx.strokeRect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
+        if (this.strokeStyle === "none")
+            ctx.fillRect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
+        else
+            ctx.rect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
         ctx.closePath();
         ctx.fill();
         ctx.stroke();

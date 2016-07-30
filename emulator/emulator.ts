@@ -61,22 +61,30 @@ CanvasRenderingContext2D.prototype.clear = function() {
 class emulator_storage {
 
     /** Update the table displaying the local storage */
-    private update_table () {
+    private static update_table () {
         /* Access the HTML table.*/
         /* Retrieve from localStorage and output in HTML table. */
 
-        let data: string = "<tr><th>Key</th><th>Value</th></tr>";
+        let data: string = "<tr><th>Key</th><th>Value</th><th></th></tr>";
 
         for (let key in localStorage) {
-            data += "<tr><td>" + key + "</td><td>" + localStorage[key] + "</td></tr>";
+            data += "<tr><td>" + key + "</td><td>" + localStorage[key] + "</td>" +
+                    "<td><a onclick=\"emulator_storage.remove_object('" + key + 
+                "')\"" + ">Delete</a></td></tr>";
         }
 
         document.getElementById("data_table").innerHTML = data;
+    }
+    
+    public static remove_object (key: string){
+        localStorage.removeItem(key);
+        emulator_storage.update_table();
     }
 
     /** Add/Set the given value/object to be stored at the given key. */
     public set_object (key: string, value: any): void {
         localStorage.setItem(key, JSON.stringify(value));
+        emulator_storage.update_table();
     }
 
     /** Retrieve the object in local storage corresponding to the given key. */
@@ -91,7 +99,7 @@ class emulator_storage {
  */
 class registered_application {
     constructor(public name: string, public start_callback: () => void,
-    public render_callback: () => boolean) {
+                public render_callback: () => boolean, public home_callback: () => void) {
     }
 }
 
@@ -170,7 +178,7 @@ class emulator_ui {
             /* Call application to start, and then set set it to be rendered. */
             this.app_list[this.current_app].start_callback();
             let unsafe: any = os; // Remove type checking on the interface to access render_function directly
-            unsafe.render_function = this.app_list[this.current_app].render_callback;
+            unsafe.current_app = this.app_list[this.current_app];
         }
     }
 }
@@ -192,7 +200,7 @@ class emulator implements emulator {
     // Gesture interpreter object - third party library
     private gesture_interpreter: any;
     // Current Renderer
-    render_function: Function;
+    current_app: registered_application;
 
     /* Construct the smart watch */
     constructor() {
@@ -243,14 +251,14 @@ class emulator implements emulator {
         let result: boolean;
 
         // Tell the application to render
-        if (this.render_function) {
-            result  = this.render_function();
+        if (this.current_app && this.current_app.render_callback) {
+            result  = this.current_app.render_callback();
 
             // If the application says it no longer needs to render
             // i.e. is finished
             if (!result) {
                 // Clear render function
-                this.render_function = undefined;
+                this.current_app = undefined;
                 // Start back up UI
                 this.ui.init();
             }
@@ -326,11 +334,18 @@ class emulator implements emulator {
         }
     }
 
-    /*
+    /**
      * Gets the current time in a Date object.
      */
     public get_time (): Date {
         return new Date();
+    }
+
+    /**
+     * Ask the emulator to close the application.
+     */
+    public go_home (): void {
+        this.current_app.home_callback();
     }
 
     /*
@@ -341,10 +356,12 @@ class emulator implements emulator {
      * (each frame). render_callback should return true if the application is to
      * continue, else control will be returned to the operating system. The
      * application can still reciever gesture notifications after returning false,
-     * so these must be cleaned up first if this is not desired.
+     * so these must be cleaned up first if this is not desired. home_callback is
+     * called to request the application to stop, allowing the return to the emulator.
+     * The application can choose if this simply hides, or quits, but should not ignore.
      */
-    public register_application (name: string, start_callback: () => void, render_callback: () => boolean) {
-        this.ui.app_list.push(new registered_application (name, start_callback, render_callback));
+    public register_application (name: string, start_callback: () => void, render_callback: () => boolean, home_callback: () => void) {
+        this.ui.app_list.push(new registered_application (name, start_callback, render_callback, home_callback));
     }
 }
 

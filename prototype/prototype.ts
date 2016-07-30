@@ -86,6 +86,7 @@ class tommy_home extends scene {
     update(dt: number) {
         super.update(dt);
         let model = this.app.pet_model;
+        model.update(dt);
         
         if (model.get_health() <= 0) {
             this.tommy_slider.set_frame(this.img_dead);
@@ -132,7 +133,7 @@ class tommy_home extends scene {
             break;
         case gesture_type.swipedown:
                 this.app.set_scene(
-                    new tommy_game(this.app, new brick_player()));
+                    new tommy_game(this.app, new ai_player()));
             break;
         }
     }
@@ -237,46 +238,51 @@ class tommy_food extends scene {
     constructor (private app: ePetTommy) {
         super();
 
+        // Graphics sizes
+        let img_size  = 100;
+        let outer_padding = 10;
+        
         let img = ePetTommy_gfx.loader.get_sprite("tablecloth", "0");
         img.set_position(0, 0);
         img.set_size(os.get_graphics_context().width(), os.get_graphics_context().height());
         this.add(img);
         // Salmon
         let feed_sal = ePetTommy_gfx.loader.get_sprite("salmon", "0");
-        feed_sal.set_position(10, 10);
-        feed_sal.set_size(100, 100);
+        feed_sal.set_position(outer_padding, outer_padding);
+        feed_sal.set_size(img_size, img_size);
         let sal_button = new button(feed_sal,
             () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
         );
         this.add(sal_button);
         // Salad
         let feed_sala = ePetTommy_gfx.loader.get_sprite("salad", "0");
-        feed_sala.set_position(210, 10);
-        feed_sala.set_size(100, 100);
+        feed_sala.set_position(2 * img_size + outer_padding, outer_padding);
+        feed_sala.set_size(img_size, img_size);
         let sala_button = new button(feed_sala,
             () => {this.app.pet_model.feed(0.1); this.app.go_home(); }
         );
         this.add(sala_button);
         // Banana
         let feed_ba = ePetTommy_gfx.loader.get_sprite("banana", "0");
-        feed_ba.set_position(110, 110);
-        feed_ba.set_size(100, 100);
+        feed_ba.set_position(img_size + outer_padding, img_size + outer_padding);
+        feed_ba.set_size(img_size, img_size);
         let ba_button = new button(feed_ba,
             () => {this.app.pet_model.feed(0.3); this.app.go_home(); }
         );
         this.add(ba_button);
         // Burger
         let feed_bu = ePetTommy_gfx.loader.get_sprite("burger", "0");
-        feed_bu.set_position(10, 210);
-        feed_bu.set_size(100, 100);
+        feed_bu.set_position(outer_padding, 2 * img_size + outer_padding);
+        feed_bu.set_size(img_size, img_size);
         let bu_button = new button(feed_bu,
             () => {this.app.pet_model.feed(0.5); this.app.go_home(); }
         );
         this.add(bu_button);
         // Pork Rice
         let feed_pr = ePetTommy_gfx.loader.get_sprite("porkrice", "0");
-        feed_pr.set_position(210, 210);
-        feed_pr.set_size(100, 100);
+        feed_pr.set_position(2 * img_size + outer_padding, 
+                                2 * img_size + outer_padding);
+        feed_pr.set_size(img_size, img_size);
         let pr_button = new button(feed_pr,
             () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
         );
@@ -318,35 +324,73 @@ class tommy_food extends scene {
 class tommy_game extends scene {
     private platform: sprite;
     private background: sprite;
-    private player: game_player;
-    private engine: game_physics;
+    public player: game_player;
+    public engine: game_physics;
     private done: boolean = false;
+    private player_stamina: rect;
+
+    private stamina_width = 150;
+    private stamina_height = 25;
+    
     // Set up the images, etc
-    constructor(private app: ePetTommy, private opponent: game_player) {
+    constructor(private app: ePetTommy, public opponent: game_player) {
         super();
+        
+        let platform_width = 200;
+        let platform_height = 100;
+        let player_width = 40;
+        let screen_width = os.get_graphics_context().width();
+        let screen_height = os.get_graphics_context().height();
+        
+        
         // Add background first so it is drawn first
 
         // Add platform below players
-        this.platform = ePetTommy_gfx.loader
-            .get_sprite("grass_platform", "0");
-        this.platform.set_size(200, 100);
-        this.platform.set_position(50, 200);
+        this.platform = ePetTommy_gfx.loader.get_sprite("grass_platform", "0");
+        this.platform.set_size(platform_width, platform_height);
+        this.platform.set_position((screen_width - platform_width) / 2,
+                                   screen_height - platform_height);
         this.add(this.platform);
 
+        // Add stamina bar on platform
+        this.player_stamina = new rect("#FFFF00", "none");
+        
+        let stamina_outline = new rect("rgba(255, 0, 0, 0.1)", "#FF0000");
+        this.add(stamina_outline);
+        this.add(this.player_stamina);
+
+        this.player_stamina.set_size(this.stamina_width, this.stamina_height);
+        stamina_outline.set_size(this.stamina_width, this.stamina_height);
+
+        let stamina_pos_x = (screen_width - this.stamina_width) / 2;
+        let stamina_pos_y = screen_height - platform_height +
+                                    (platform_height - this.stamina_height) / 2;
+
+        this.player_stamina.set_position(stamina_pos_x, stamina_pos_y);
+        stamina_outline.set_position(stamina_pos_x, stamina_pos_y);
+        
         // Get the player interface
         this.player = app.pet_model.generate_push_player();
         // Add the player's actor to the display
         this.add(this.player.actor);
+        this.player.actor.parent = undefined;
 
         // same for opponent
         this.add(this.opponent.actor);
+        this.opponent.actor.parent = undefined;
         
-        // Need to resize, and position these actors. They should have no parent
-        // TODO: improve - remove magic numbers
-        this.player.actor.set_size(30, 30);
-        this.opponent.actor.set_size(30, 30);
-        this.player.actor.set_position(100, 170);
-        this.opponent.actor.set_position(200, 170);
+        // Need to resize, and position these actors. They should
+        // have sizes of the correct aspect ratio
+        let player_height = this.player.actor.height * 
+                                (player_width / this.player.actor.width);
+        this.player.actor.set_size(player_width, player_height);
+        let opponent_height = this.opponent.actor.height * 
+                                    (player_width / this.opponent.actor.width);
+        this.opponent.actor.set_size(player_width, opponent_height);
+        this.player.actor.set_position(screen_width / 3 - player_width / 2, 
+                            screen_height - platform_height - player_height);
+        this.opponent.actor.set_position(2 * screen_width / 3 - player_width / 2,
+                            screen_height - platform_height - opponent_height);
         
         // Give the players access to this game scene
         this.player.parent = this;
@@ -362,10 +406,13 @@ class tommy_game extends scene {
             return;
             
         let result = this.engine.update(this.player, this.opponent, this.platform, dt);
+
+        this.player_stamina.set_size(this.stamina_width * this.player.get_stamina(), this.stamina_height);
         
         if (result === this.player) {
             let tag = new label("You Win!", "20px sans-serif", "#004400", "center");
-            tag.set_position(160, 160);
+            tag.set_position(os.get_graphics_context().width() / 2,
+                             os.get_graphics_context().height() / 2);
             this.add(tag);
             this.app.pet_model.play();
             // Game is over.
@@ -374,7 +421,8 @@ class tommy_game extends scene {
         }
         if (result === this.opponent) {
             let tag = new label("You Lose!", "20px sans-serif", "#440000", "center");
-            tag.set_position(160, 160);
+            tag.set_position(os.get_graphics_context().width() / 2,
+                             os.get_graphics_context().height() / 2);
             this.add(tag);
             this.app.pet_model.play();
             // Game is over.
@@ -450,7 +498,7 @@ class ePetTommy_gfx {
                     regions: {
                         "0": { x: 0, y: 0, w: 320, h: 320 }
                     }
-                },                
+                }
             });
 
     }

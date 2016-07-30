@@ -57,8 +57,9 @@ class clock_application {
     
     // Actual registration with operating system
     os.register_application(
-            "Clock", // Name
-            () => c.init(), // Init function
-            () => c.draw() // Render function
+        "Clock", // Name
+        () => c.init(), // Init function
+        () => c.draw(),  // Render function
+        () => c.quit(0, 0, 0)
         );
 })();

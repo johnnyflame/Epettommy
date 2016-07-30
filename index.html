@@ -35,6 +35,7 @@
         <script>
             window.onload = function(){
                 os.init("emulator_display");
+                emulator_storage.update_table();
             };
         </script>
     </head>
@@ -65,7 +66,7 @@
             </div>
             <div class="row">
                 Local Storage
-                <table class="table table-striped">
+                <table id="data_table" class="table table-striped">
                     <tr><th>Key</th><th>Value</th></tr>
                 </table>
             </div>

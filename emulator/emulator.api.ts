@@ -82,7 +82,8 @@ interface emulator {
     register_application (
         name: string,
         start_callback: () => void,
-        render_callback: () => boolean
+        render_callback: () => boolean,
+        home_callback: () => void
     ): void;
 }
 

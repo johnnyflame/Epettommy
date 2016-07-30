@@ -12,8 +12,10 @@ class tommy_model {
     private emotion: number = 0.5;
     /// Private member strength, intial strength set to 1.
     private strength: number = 1.0;
+    
     /// Private member stat_add, increase state increment.
     private stat_increment: number = 0.1;
+    
     /// Private member max_hunger, the maximum hunger limit.
     private max_hunger: number = 1.2;
     /// Private member max_health, the maximum health limit.
@@ -23,7 +25,10 @@ class tommy_model {
     /// Private member min_strength, the minimum strength limit.
     private min_strength: number = 1.0;
     /// Key for saving and receiving pet values.    
-    private tommy_state_key: string = "tommy_state"; 
+    private tommy_state_key: string = "tommy_state";
+
+    /// Time tommy was last interacted with
+    private last_interaction_time = os.get_time();
    
     
     /**
@@ -38,11 +43,19 @@ class tommy_model {
         if (data === null) {
             console.log("First execution, no save found.");
         } else {
-        this.health = data.health;
-        this.hunger = data.hunger;
-        this.emotion = data.emotion;
-        this.strength = data.strength;
+            this.health = data.health;
+            this.hunger = data.hunger;
+            this.emotion = data.emotion;
+            this.strength = data.strength;
+            this.last_interaction_time = data.interaction_time;
+
+            let time_diff = (os.get_time().getTime() - data.interaction_time);
+           
+            // Update values, as tommy hasn't been cared for in a while.
+            this.update (time_diff);
         }
+
+                
       }
         
     /**
@@ -54,7 +67,8 @@ class tommy_model {
          health: this.health,
          hunger: this.hunger,
          emotion: this.emotion,
-         strength: this.strength,  
+         strength: this.strength,
+         interaction_time: this.last_interaction_time.getTime()
      });
     }
      
@@ -153,6 +167,9 @@ class tommy_model {
             this.set_emotion(this.emotion - this.stat_increment * 2);
             this.set_hunger(this.hunger + this.stat_increment);
         }
+        this.last_interaction_time = os.get_time();
+        this.save_data();
+        
     }
     
     /**
@@ -160,6 +177,8 @@ class tommy_model {
     */
     play () {
         this.emotion = this.emotion + this.stat_increment;
+        this.last_interaction_time = os.get_time();
+        this.save_data();
     }
     
     /**
@@ -170,4 +189,25 @@ class tommy_model {
          p.actor = ePetTommy_gfx.loader.get_sprite("tommy", "happy");
          return p;
      }
+
+    /**
+     * Update time dependant parameters (i.e. get hungry over time, etc)
+     */
+    update(dt: number) {
+
+        let day_time = 24 * 3600 * 1000;
+        let day_diff = dt / day_time; // convert dt to days
+        
+        // Getting hungry - from full to 0 in 4 days
+        this.hunger = this.hunger - day_diff / 4;
+        if (this.hunger <= 0) {
+            this.hunger = 0;
+            this.health = 0;
+        } else {
+            // Inverse decay to mid health over time.
+            this.health = (this.health - 0.5) / (day_diff * 0.5 + 1) + 0.5;
+        }
+        // Inverse devay to mid emotion over time.
+        this.emotion = (this.emotion - 0.5) / (day_diff * 0.5 + 1) + 0.5;
+    }
 }

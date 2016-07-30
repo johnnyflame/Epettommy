@@ -158,7 +158,7 @@ class brick_player extends game_player {
     constructor () {
         super();
         this.actor = ePetTommy_gfx.loader.get_sprite("tommy", "dead"); 
-        // TODO: Get brick image
+        // TODO: Get brick image?
     }
 
     get_push(): number {return 0; }
@@ -166,6 +166,48 @@ class brick_player extends game_player {
     get_direction(): direction {return direction.LEFT; }
  
     request_jump(): boolean {return false; }
+    
+    get_mass (): number {return 1; }
+    get_stamina (): number {return 1; }
+    game_over (won: boolean): void {}
+}
+
+
+// Simple AI player
+class ai_player extends game_player {
+    
+    private last_push = os.get_time().getTime();
+    private last_jump = os.get_time().getTime();
+    private jump_time = Math.random() * 10000;
+    
+    constructor () {
+        super();
+        this.actor = ePetTommy_gfx.loader.get_sprite("tommy", "sick"); 
+        // TODO: Select Image
+    }
+
+    get_push(): number {
+        if (os.get_time().getTime() - this.last_push > 500) {
+            this.last_push = os.get_time().getTime();
+            return 1;
+        }
+        return 0;
+    }
+
+    get_direction(): direction {
+        if (this.parent.engine.is_left(this.parent.player.actor, this.actor))
+            return direction.LEFT;
+        return direction.RIGHT;
+    }
+    
+    request_jump(): boolean {
+        if (os.get_time().getTime() - this.last_jump > this.jump_time) {
+            this.last_jump = os.get_time().getTime();
+            this.jump_time = Math.random() * 10000;
+            return true;
+        }
+        return false;
+    }
     
     get_mass (): number {return 1; }
     get_stamina (): number {return 1; }
