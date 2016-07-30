@@ -9,6 +9,9 @@ abstract class game_player {
     parent: tommy_game; // tommy game. This will be automatically set when the player
     // is added to a game
     
+    // y-velocity. Some accounting for jumping
+    vy: number;
+    
     protected jumping: boolean;
        
     // Get the relative amount of push since the last check
@@ -90,7 +93,8 @@ class user_player extends game_player {
         switch (g) {
             case gesture_type.tap:
                 this.pushes += 1;
-                this.remaining_stamina -= this.stamina_decay;
+                this.remaining_stamina -= (this.remaining_stamina > this.stamina_decay) ?
+                    this.stamina_decay : (this.remaining_stamina);
                 break;
             case gesture_type.swipeleft:
                 this.dir = direction.LEFT;
@@ -153,7 +157,7 @@ class brick_player extends game_player {
     
     constructor () {
         super();
-        this.actor = ePetTommy_gfx.loader.get_sprite("tommy", "happy"); 
+        this.actor = ePetTommy_gfx.loader.get_sprite("tommy", "dead"); 
         // TODO: Get brick image
     }
 
@@ -228,26 +232,58 @@ class game_physics {
         
     }
 
-    // Has the given player fallen off the platform - i.e. lost
-    off_platform(p: game_player): boolean {
-        // TODO
-        return false;
+    /**
+     * Is `above` directly above `below`
+     * Examines `above` mid-point
+     */
+    direct_above(below: actor, above: actor): boolean {
+        let above_mid = above.abs_x() + (above.abs_width() / 2);
+        return (above_mid > below.abs_x() && 
+            above_mid < below.abs_x() + below.abs_width());
+    }
+    
+    /**
+     * Jumping logic for a given player. Handles starting jumps, and 
+     * the vertical movement of a jump.
+     */
+    do_jump(a: game_player, platform: actor, dt: number): void {
+        /* JUMPING LOGIC */
+        dt = dt / 1000; // Normalize to seconds so vy in px/sec
+        if (a.request_jump()) {
+            let vy_init = -100;
+            
+            a.set_jump_state(true);
+            a.vy = vy_init;
+        }
+        if (a.is_jumping()) {
+            let gravity = 60;
+            
+            a.move(0, a.vy * dt);
+            a.vy += gravity * dt;
+            
+            if (this.colliding(a.actor, platform)) {
+                a.vy = 0;
+                a.set_jump_state(false);
+                a.move(0, -a.actor.abs_y() - a.actor.abs_height() + platform.abs_y());
+            }
+        }
     }
 
-    // Perform step of the game. Returns true if game over
-    update (a1: game_player, a2: game_player): boolean {
-        
+    /** Perform step of the game.
+     * @returns the winner if the game is over, or undefined.
+     */
+    update (a1: game_player, a2: game_player, platform: actor, dt: number): game_player {
         // Are we done?
-        if (this.off_platform(a1)) {
+        if (!this.direct_above(platform, a1.actor)) {
             a1.game_over(false);
             a2.game_over(true);
             // Signal game over
-            return true;
-        } else if (this.off_platform(a2)) {
+            return a2;
+        } else if (!this.direct_above(platform, a2.actor)) {
             a1.game_over(true);
             a2.game_over(false);
             // Signal game over
-            return true;
+            return a1;
         }
         
         // Make life easier
@@ -260,8 +296,10 @@ class game_physics {
         // Calculate different step distances.
         let dist1 = left.get_push() 
             * ((left.get_direction() === direction.RIGHT) ? 1 : -1)
+            * (left.get_stamina() + 0.1)
             * push_step;
         let dist2 = right.get_push() 
+            * (right.get_stamina() + 0.1)
             * ((right.get_direction() === direction.RIGHT) ? 1 : -1)
             * push_step;
             
@@ -289,18 +327,24 @@ class game_physics {
             left.move(dist, 0);
             right.move(dist, 0);
             
+        }
+        if (this.colliding(left.actor, right.actor)) {
             // Find overlap
             let diff = (left.actor.abs_x() + left.actor.abs_width())
                  - right.actor.abs_x();
-            
+
             // Separate if there is overlap
             if (diff > 0) {
-                left.move(-diff / 2, 0);
-                right.move(diff / 2, 0);
+                let total_mass = right.get_mass() + left.get_mass();
+                left.move(- left.get_mass() * diff / total_mass, 0);
+                right.move(right.get_mass() * diff / total_mass, 0);
             }
         }
+        
+        this.do_jump(right, platform, dt);
+        this.do_jump(left, platform, dt);
 
-        return false;
+        return undefined;
     }
 
 }

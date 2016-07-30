@@ -320,7 +320,7 @@ class tommy_game extends scene {
     private background: sprite;
     private player: game_player;
     private engine: game_physics;
-
+    private done: boolean = false;
     // Set up the images, etc
     constructor(private app: ePetTommy, private opponent: game_player) {
         super();
@@ -357,11 +357,29 @@ class tommy_game extends scene {
     
     update (dt: number) {
         super.update(dt);
-        let result = this.engine.update(this.player, this.opponent);
-        if (result) {
+        
+        if (this.done)
+            return;
+            
+        let result = this.engine.update(this.player, this.opponent, this.platform, dt);
+        
+        if (result === this.player) {
+            let tag = new label("You Win!", "20px sans-serif", "#004400", "center");
+            tag.set_position(160, 160);
+            this.add(tag);
+            this.app.pet_model.play();
             // Game is over.
-            this.app.go_home();
-            // TODO: Game over/congrats display, stats update on model.
+            setTimeout(() => this.app.go_home(), 2000);
+            this.done = true;
+        }
+        if (result === this.opponent) {
+            let tag = new label("You Lose!", "20px sans-serif", "#440000", "center");
+            tag.set_position(160, 160);
+            this.add(tag);
+            this.app.pet_model.play();
+            // Game is over.
+            setTimeout(() => this.app.go_home(), 2000);
+            this.done = true;
         }
     }
 
