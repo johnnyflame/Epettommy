@@ -137,9 +137,24 @@ class emulator_ui {
     draw() {
         let ctx: CanvasRenderingContext2D = this.canvas.getContext("2d");
         ctx.clear();
+        ctx.fillStyle = "#111111";
+        ctx.fillRect(0, 0, ctx.width(), ctx.height());
+        ctx.fillStyle = "#222222";
+        let top_bar_height = 40;
+        ctx.fillRect(0, 0, ctx.width(), top_bar_height);
+        ctx.fillStyle = "#CCCCCC";
+        let options = {
+            weekday: "long", year: "numeric", month: "short",
+            day: "numeric", hour: "2-digit", minute: "2-digit"
+        };
+        let time_display = os.get_time().toLocaleTimeString("en-GB", options);
+        ctx.textAlign = "center";
+        ctx.font = "10px sans-serif";
+        ctx.fillText(time_display, this.canvas.width / 2, top_bar_height / 2);
+        
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
-        ctx.fillStyle = "#000000";
+        ctx.fillStyle = "#EEEEEE";
         if (this.app_list[this.current_app]) {
             ctx.fillText(this.app_list[this.current_app].name, this.canvas.width / 2, this.canvas.height / 2);
         } else {
