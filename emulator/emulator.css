@@ -1,13 +1,16 @@
-/*
-    Styling for main emulator interface.
- */
+/**
+* Provide Styling for main emulator interface.
+*/
  
+
+/* Adjusts the height and width of the emulator display window */
  #emulator_display {
      width: 320px;
      height: 320px;
      border: 1px #000 solid;
  }
  
+ /* Styling for the console */
   #emulator_console {
      border: 1px #000 solid;
  }
