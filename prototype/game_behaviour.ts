@@ -295,10 +295,10 @@ class game_physics {
         p.vx -= dt * p.vx / time_constant;
     }
     
-    do_move(p: game_player, dt:number): void {
+    do_move(p: game_player, dt: number): void {
         let dt_sec = dt / 1000; // Convert to seconds
         let vx_scale = 10; // so vx in 30pix/sec
-        p.move(p.vx * vx_scale * dt_sec, 0)
+        p.move(p.vx * vx_scale * dt_sec, 0);
         
     }
 

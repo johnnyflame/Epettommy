@@ -62,21 +62,26 @@ class emulator_storage {
 
     /** Update the table displaying the local storage */
     private static update_table () {
-        /* Access the HTML table.*/
-        /* Retrieve from localStorage and output in HTML table. */
+        
+        let table = document.getElementById("data_table");
+        if (table) {
+        
+            /* Access the HTML table.*/
+            /* Retrieve from localStorage and output in HTML table. */
 
-        let data: string = "<tr><th>Key</th><th>Value</th><th></th></tr>";
+            let data: string = "<tr><th>Key</th><th>Value</th><th></th></tr>";
 
-        for (let key in localStorage) {
-            data += "<tr><td>" + key + "</td><td>" + localStorage[key] + "</td>" +
-                    "<td><a onclick=\"emulator_storage.remove_object('" + key + 
-                "')\"" + ">Delete</a></td></tr>";
+            for (let key in localStorage) {
+                data += "<tr><td>" + key + "</td><td>" + localStorage[key] + "</td>" +
+                        "<td><a onclick=\"emulator_storage.remove_object('" + key + 
+                    "')\"" + ">Delete</a></td></tr>";
+            }
+
+            table.innerHTML = data;
         }
-
-        document.getElementById("data_table").innerHTML = data;
     }
     
-    public static remove_object (key: string){
+    public static remove_object (key: string) {
         localStorage.removeItem(key);
         emulator_storage.update_table();
     }
@@ -216,11 +221,16 @@ class emulator implements emulator {
     private gesture_interpreter: any;
     // Current Renderer
     current_app: registered_application;
+    
+    // Dates for time accelleration
+    private last_date: Date;
+    private last_reported_date: Date;
 
     /* Construct the smart watch */
     constructor() {
         this.gesture_handlers = [];
         this.ui = new emulator_ui();
+        this.last_date = this.last_reported_date = new Date();
     }
 
     /* Initialize and start the smart watch */
@@ -309,7 +319,6 @@ class emulator implements emulator {
      * array of registered gesture event handlers.
      */
     private internal_gesture_reciever(ev: any) {
-        // console.log("Event --- " + JSON.stringify(ev));
         // Translate mouse to internal coordinates
         let rect = this.display.getBoundingClientRect();
         ev.center.x = ev.center.x - rect.left;
@@ -353,7 +362,18 @@ class emulator implements emulator {
      * Gets the current time in a Date object.
      */
     public get_time (): Date {
-        return new Date();
+        let now = new Date();
+        let time_scale: any = document.getElementById("time_scale");
+        if (time_scale) {
+            let diff = now.getTime() - this.last_date.getTime();
+            diff *= Math.exp(time_scale.value / 10);
+            let tmp = new Date();
+            tmp.setTime(diff + this.last_reported_date.getTime());
+            this.last_date = now;
+            return this.last_reported_date = tmp;
+        } else {
+            return now;
+        }
     }
 
     /**
@@ -377,6 +397,14 @@ class emulator implements emulator {
      */
     public register_application (name: string, start_callback: () => void, render_callback: () => boolean, home_callback: () => void) {
         this.ui.app_list.push(new registered_application (name, start_callback, render_callback, home_callback));
+    }
+    
+    public log (log_text: string): void {
+        console.log(log_text);
+        let log_div = document.getElementById("emulator_console");
+        if (log_div) {
+            log_div.innerHTML += "<p>" + log_text + "</p>";
+        }
     }
 }
 

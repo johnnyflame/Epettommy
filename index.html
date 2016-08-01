@@ -47,9 +47,13 @@
                     <canvas id="emulator_display" width="320" height="320" class="center-block">
                         Smart Watch Interface.
                     </canvas>
-            </div>
+                    <p>
+                            <a onclick="os.go_home()">Home Button</a>
+                    </p>
+                </div>
                 <div class="col-md-6">
                     <div>
+
                         <p>
                         The watch display accepts tap (short click), and swipe gestures. 
                         Swipe right or left to change application, and tap to select.
@@ -63,6 +67,9 @@
                         
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                Time Scale: <input id="time_scale" type="range"  min="-10" max="100" value="0" step="5" />
             </div>
             <div class="row">
                 Local Storage

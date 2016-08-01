@@ -41,7 +41,7 @@ class tommy_model {
         let data = s.get_object(this.tommy_state_key);
 
         if (data === null) {
-            console.log("First execution, no save found.");
+            os.log("First execution, no save found.");
         } else {
             this.health = data.health;
             this.hunger = data.hunger;

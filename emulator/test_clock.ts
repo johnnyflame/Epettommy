@@ -47,7 +47,7 @@ class clock_application {
 
         ctx.font = "15px Arial";
         ctx.textAlign = "center";
-        ctx.fillStyle = "#EEEEEE"
+        ctx.fillStyle = "#EEEEEE";
 
         ctx.fillText(date1, ctx.width() / 2, y_pos);
         ctx.fillText(date2, ctx.width() / 2, y_pos + 20);
@@ -55,7 +55,7 @@ class clock_application {
         // Angles from 12, in the clockwise direction
         let second_angle = (2 * Math.PI) *
                     (now.getSeconds() / 60 +
-                    now.getMilliseconds() / (60*1000));
+                    now.getMilliseconds() / (60 * 1000));
         let minute_angle = (2 * Math.PI) * (now.getMinutes() / 60) +
                     second_angle / 60;
         let hour_angle = (2 * Math.PI) * (now.getHours() / 12) +
@@ -75,11 +75,11 @@ class clock_application {
             ctx.lineTo(mid_x + len * Math.sin(angle),
                     mid_y - len * Math.cos(angle));
             ctx.stroke();
-        }
+        };
         
         // Seconds
         ctx.fillStyle = "#222222";
-        ctx.beginPath()
+        ctx.beginPath();
         ctx.moveTo(mid_x, mid_y); 
         ctx.lineTo(mid_x + radius * Math.sin(second_angle),
                     mid_y - radius * Math.cos(second_angle));
@@ -89,7 +89,7 @@ class clock_application {
         ctx.lineCap = "round";
         ctx.strokeStyle = "#CCCCCC";
         // Hands
-        ctx.lineWidth = "2"
+        ctx.lineWidth = "2";
         draw_hand(minute_hand_length, minute_angle);
         ctx.lineWidth = "3";
         draw_hand(hour_hand_length, hour_angle);

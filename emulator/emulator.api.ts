@@ -68,6 +68,9 @@ interface emulator {
      * Gets the current time in a Date object.
      */
     get_time (): Date;
+    
+    
+    log (log_text: string): void;
 
     /*
      * Register an application with the emulator
