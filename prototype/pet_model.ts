@@ -176,7 +176,7 @@ class tommy_model {
     * Sets emotion based on play
     */
     play () {
-        this.emotion = this.emotion + this.stat_increment;
+        this.set_emotion(this.emotion + this.stat_increment*3);
         this.last_interaction_time = os.get_time();
         this.save_data();
     }
