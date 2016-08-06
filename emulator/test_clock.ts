@@ -89,13 +89,13 @@ class clock_application {
         ctx.lineCap = "round";
         ctx.strokeStyle = "#CCCCCC";
         // Hands
-        ctx.lineWidth = "2";
+        ctx.lineWidth = 2;
         draw_hand(minute_hand_length, minute_angle);
-        ctx.lineWidth = "3";
+        ctx.lineWidth = 3;
         draw_hand(hour_hand_length, hour_angle);
         
         // Outline
-        ctx.lineWidth = "2";
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(mid_x, mid_y, radius, 0, 2 * Math.PI);
         ctx.stroke();

@@ -10,8 +10,7 @@ class test_application extends application {
         super(); // Appeal to parent class --- we must
         this.register_with_os(name, os); // Register the application with the os
         // Pre-load images
-        this.sprite_img = new Image();
-        this.sprite_img.src = "prototype/resources/slime.png"; 
+        this.sprite_img = os.get_image("prototype/resources/slime.png"); 
     }
 
     init() {

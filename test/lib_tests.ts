@@ -57,7 +57,7 @@ QUnit.test("Application Lib: Scene", function(assert: any) {
     
     test_scene.add(test_actor);
     
-    test_scene.draw(new Object());
+    test_scene.draw(os.get_graphics_context());
     assert.deepEqual(test_actor.draw_count, 1, "Draw Single");
     
     test_scene.update(0);
@@ -66,7 +66,7 @@ QUnit.test("Application Lib: Scene", function(assert: any) {
     let test_actor2 = new dummy ();
     test_scene.add(test_actor2);
     
-    test_scene.draw(new Object());
+    test_scene.draw(os.get_graphics_context());
     assert.ok(test_actor.draw_count === 2 && test_actor2.draw_count === 1, "Draw Multiple");
     
     test_scene.update(0);
@@ -121,7 +121,7 @@ QUnit.test("Application Lib: Button", function(assert: any) {
     unsafe.handle(gesture_type.tap, 5, -1);
     assert.deepEqual(push_count, 1, "Outside Taps");
         
-    test_button.draw(new Object());
+    test_button.draw(os.get_graphics_context());
     assert.deepEqual(test_actor.draw_count, 1, "Draw");
     
     test_button.update(0);
@@ -138,19 +138,19 @@ QUnit.test("Application Lib: Animator", function(assert: any) {
     test_animator.add(test_actor);
     test_animator.add(test_actor2);
     
-    test_animator.draw(new Object());
+    test_animator.draw(os.get_graphics_context());
     assert.deepEqual(test_actor.draw_count, 1, "First frame init");
     
     test_animator.update(0.5 * 1000);
-    test_animator.draw(new Object());
+    test_animator.draw(os.get_graphics_context());
     assert.deepEqual(test_actor.draw_count, 2, "Small change");
     
     test_animator.update(0.5 * 1000);
-    test_animator.draw(new Object());
+    test_animator.draw(os.get_graphics_context());
     assert.deepEqual(test_actor2.draw_count, 1, "Second frame");
     
     test_animator.update(2.3 * 1000);
-    test_animator.draw(new Object());
+    test_animator.draw(os.get_graphics_context());
     assert.deepEqual(test_actor2.draw_count, 2, "Wrap back onto frame");
     
     // Static Animator
@@ -160,15 +160,15 @@ QUnit.test("Application Lib: Animator", function(assert: any) {
     test_animator.add(test_actor);
     test_animator.add(test_actor2);
     
-    test_animator.draw(new Object());
+    test_animator.draw(os.get_graphics_context());
     assert.deepEqual(test_actor.draw_count, 1, "First frame init");
     
     test_animator.update(1.5 * 1000);
-    test_animator.draw(new Object());
+    test_animator.draw(os.get_graphics_context());
     assert.deepEqual(test_actor.draw_count, 2, "Time Change");
     
     test_animator.set_frame(1);
-    test_animator.draw(new Object());
+    test_animator.draw(os.get_graphics_context());
     assert.ok(test_actor.draw_count === 2 && test_actor2.draw_count === 1, "Frame Change");
 
     assert.ok(!test_actor.visible && test_actor2.visible, "Visibilities");

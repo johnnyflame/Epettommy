@@ -371,7 +371,7 @@ class rect extends actor {
      * Construct a rectangle with the given fillStyle, strokeStyle and lineWidth
      * as per the canvas 2d context.
      */
-    constructor(private fillStyle: any, private strokeStyle: any, private lineWidth = "1") {
+    constructor(private fillStyle: any, private strokeStyle: any, private lineWidth = 1) {
         super();
     }
 
@@ -381,15 +381,12 @@ class rect extends actor {
         ctx.fillStyle = this.fillStyle;
         ctx.lineWidth = this.lineWidth;
         ctx.beginPath();
-        if (this.fillStyle === "none")
-            ctx.strokeRect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
-        if (this.strokeStyle === "none")
-            ctx.fillRect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
-        else
-            ctx.rect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
+        ctx.rect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
         ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+        if (this.fillStyle !== "none")
+            ctx.fill();
+        if (this.strokeStyle !== "none")
+            ctx.stroke();
     }
 
     /** Update the actor. A rect does nothing. */
@@ -570,8 +567,7 @@ class image_loader {
         // Make a new Image object for each item and give it the 
         // corresponding src
         for (let item in this.data) {
-            this.data[item].image = new Image();
-            this.data[item].image.src = this.data[item].src;
+            this.data[item].image = os.get_image(this.data[item].src);
         };
     }
     

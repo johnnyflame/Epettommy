@@ -25,7 +25,6 @@ class ePetTommy extends application {
     // Tell the application and scenes that it is time to stop.
     quit() {
         super.quit();
-        this.main_scene.close();
     }
 
     // Set the scene to the main/home scene
@@ -39,7 +38,6 @@ class ePetTommy extends application {
  */
 class tommy_home extends scene {
 
-    private game_button: button;
     private gest_handle_id: gesture_callback_id;
     private tommy_slider: animator;
     
@@ -66,6 +64,35 @@ class tommy_home extends scene {
         this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "sad"));
         this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "sick"));
         this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "dead"));
+        
+        let w = os.get_graphics_context().width();
+        let h = os.get_graphics_context().height();
+        let left_carret = ePetTommy_gfx.loader.get_sprite("carret", "left");
+        left_carret.set_size(40, 40);
+        left_carret.set_position(0, (h - left_carret.height) / 2);
+        this.add(left_carret);
+        
+        let right_carret = ePetTommy_gfx.loader.get_sprite("carret", "right");
+        right_carret.set_size(40, 40);
+        right_carret.set_position((w - right_carret.width),  (h - left_carret.height) / 2);
+        this.add(right_carret);
+        
+        let top_carret = ePetTommy_gfx.loader.get_sprite("carret", "up");
+        top_carret.set_size(40, 40);
+        top_carret.set_position((w - right_carret.width) / 2,  0);
+        this.add(top_carret);
+                
+        let food_label = new label("Feed", "10px sans-serif");
+        food_label.set_position(0, (h - left_carret.height) / 2);
+        this.add(food_label);
+        
+        let stat_label = new label("Stats", "10px sans-serif");
+        stat_label.set_position((w - right_carret.width),  (h - left_carret.height) / 2);
+        this.add(stat_label);
+        
+        let game_label = new label("Play", "10px sans-serif");
+        game_label.set_position((w - right_carret.width) / 2,  50);
+        this.add(game_label);
         
         this.tommy_slider.set_position(80, 80);
         this.tommy_slider.set_size(160, 160);
@@ -138,11 +165,6 @@ class tommy_home extends scene {
         }
     }
 
-    // finish() the buttons - this is more final then end()
-    // which will be called each time we swap to another scene.
-    close() {
-        this.game_button.finish();
-    }
 }
 
 class tommy_stats extends scene {
@@ -195,6 +217,18 @@ class tommy_stats extends scene {
         text = new label ("Emotion", "10px sans-serif", "#FFFFFF", "right");
         text.set_position(hpad, (vpad + this.barheight) * 3 + vpad + tpad);
         this.add(text);
+        
+        let w = os.get_graphics_context().width();
+        let h = os.get_graphics_context().height();
+        let left_carret = ePetTommy_gfx.loader.get_sprite("carret", "left");
+        left_carret.set_size(40, 40);
+        left_carret.set_position(0, (h - left_carret.height) / 2);
+        this.add(left_carret);
+        
+        let right_carret = ePetTommy_gfx.loader.get_sprite("carret", "right");
+        right_carret.set_size(40, 40);
+        right_carret.set_position((w - right_carret.width),  (h - left_carret.height) / 2);
+        this.add(right_carret);
     }
     
     init () {
@@ -234,6 +268,7 @@ class tommy_stats extends scene {
 
 class tommy_food extends scene {
     private gest_handle_id: gesture_callback_id;
+    private buttons: button[] = [];
         
     constructor (private app: ePetTommy) {
         super();
@@ -254,6 +289,7 @@ class tommy_food extends scene {
             () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
         );
         this.add(sal_button);
+        this.buttons.push(sal_button);
         // Salad
         let feed_sala = ePetTommy_gfx.loader.get_sprite("salad", "0");
         feed_sala.set_position(2 * img_size + outer_padding, outer_padding);
@@ -262,6 +298,7 @@ class tommy_food extends scene {
             () => {this.app.pet_model.feed(0.1); this.app.go_home(); }
         );
         this.add(sala_button);
+        this.buttons.push(sala_button);
         // Banana
         let feed_ba = ePetTommy_gfx.loader.get_sprite("banana", "0");
         feed_ba.set_position(img_size + outer_padding, img_size + outer_padding);
@@ -270,6 +307,7 @@ class tommy_food extends scene {
             () => {this.app.pet_model.feed(0.3); this.app.go_home(); }
         );
         this.add(ba_button);
+        this.buttons.push(ba_button);
         // Burger
         let feed_bu = ePetTommy_gfx.loader.get_sprite("burger", "0");
         feed_bu.set_position(outer_padding, 2 * img_size + outer_padding);
@@ -278,6 +316,7 @@ class tommy_food extends scene {
             () => {this.app.pet_model.feed(0.5); this.app.go_home(); }
         );
         this.add(bu_button);
+        this.buttons.push(bu_button);
         // Pork Rice
         let feed_pr = ePetTommy_gfx.loader.get_sprite("porkrice", "0");
         feed_pr.set_position(2 * img_size + outer_padding, 
@@ -287,6 +326,19 @@ class tommy_food extends scene {
             () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
         );
         this.add(pr_button);
+        this.buttons.push(pr_button);
+        
+        let w = os.get_graphics_context().width();
+        let h = os.get_graphics_context().height();
+        let left_carret = ePetTommy_gfx.loader.get_sprite("carret", "left");
+        left_carret.set_size(40, 40);
+        left_carret.set_position(0, (h - left_carret.height) / 2);
+        this.add(left_carret);
+        
+        let right_carret = ePetTommy_gfx.loader.get_sprite("carret", "right");
+        right_carret.set_size(40, 40);
+        right_carret.set_position((w - right_carret.width),  (h - left_carret.height) / 2);
+        this.add(right_carret);
     }
     
     init () {
@@ -300,8 +352,9 @@ class tommy_food extends scene {
     
     end () {
         super.end();
-        // Remove handler
+        // Remove handlers
         os.remove_gesture_handler(this.gest_handle_id);
+        this.buttons.forEach((b: button) => b.finish());
     }
     
     /**
@@ -323,7 +376,6 @@ class tommy_food extends scene {
  */
 class tommy_game extends scene {
     private platform: sprite;
-    private background: sprite;
     public player: game_player;
     public engine: game_physics;
     private done: boolean = false;
@@ -410,7 +462,7 @@ class tommy_game extends scene {
         this.player_stamina.set_size(this.stamina_width * this.player.get_stamina(), this.stamina_height);
         
         if (result === this.player) {
-            let tag = new label("You Win!", "20px sans-serif", "#004400", "center");
+            let tag = new label("You Win!", "30px sans-serif", "#004400", "center");
             tag.set_position(os.get_graphics_context().width() / 2,
                              os.get_graphics_context().height() / 2);
             this.add(tag);
@@ -420,7 +472,7 @@ class tommy_game extends scene {
             this.done = true;
         }
         if (result === this.opponent) {
-            let tag = new label("You Lose!", "20px sans-serif", "#440000", "center");
+            let tag = new label("You Lose!", "30px sans-serif", "#440000", "center");
             tag.set_position(os.get_graphics_context().width() / 2,
                              os.get_graphics_context().height() / 2);
             this.add(tag);
@@ -497,6 +549,15 @@ class ePetTommy_gfx {
                     src: "prototype/resources/space.png",
                     regions: {
                         "0": { x: 0, y: 0, w: 320, h: 320 }
+                    }
+                },
+                "carret": {
+                    src: "prototype/resources/carrets.png",
+                    regions: {
+                        "left": { x: 0, y: 0, w: 72, h: 72 },
+                        "right": { x: 72, y: 0, w: 72, h: 72 },
+                        "down": { x: 72, y: 72, w: 72, h: 72 },
+                        "up": { x: 72, y: 72, w: 72, h: 72 }
                     }
                 }
             });

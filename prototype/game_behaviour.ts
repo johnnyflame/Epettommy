@@ -233,7 +233,9 @@ class game_physics {
             (a2.abs_x() + a2.abs_width() / 2);
     }
 
-    // Tests if a1 and a2 are touching/intersecting.
+    /**
+     *  Tests if a1 and a2 are touching/intersecting.
+     */
     colliding (a1: actor, a2: actor): boolean {
         let y1 = a1.abs_y();
         let min_y = a2.abs_y() - a1.abs_height();
@@ -243,7 +245,7 @@ class game_physics {
         let min_x = a2.abs_x() - a1.abs_width();
         let max_x = a2.abs_x() + a2.abs_width();
         
-        if (x1 > min_x && x1 < max_x && y1 > min_y && y1 < max_y)
+        if (x1 >= min_x && x1 <= max_x && y1 >= min_y && y1 <= max_y)
             return true;
         else
             return false;
@@ -251,7 +253,7 @@ class game_physics {
     }
 
     /**
-     * Is `above` directly above `below`
+     * Is `above` directly above `below`, in terms of only the horizontal component
      * Examines `above` mid-point
      */
     directly_above(below: actor, above: actor): boolean {
@@ -295,6 +297,9 @@ class game_physics {
         p.vx -= dt * p.vx / time_constant;
     }
     
+    /**
+     * Move player according to velocity.
+     */
     do_move(p: game_player, dt: number): void {
         let dt_sec = dt / 1000; // Convert to seconds
         let vx_scale = 10; // so vx in 30pix/sec
@@ -302,8 +307,9 @@ class game_physics {
         
     }
 
-    /** Perform step of the game.
-     * @returns the winner if the game is over, or undefined.
+    /**
+     * Perform step of the game.
+     * @return the winner if the game is over, or undefined.
      */
     update (a1: game_player, a2: game_player, platform: actor, dt: number): game_player {
         // Are we done?

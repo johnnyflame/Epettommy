@@ -251,6 +251,8 @@ class emulator implements emulator {
         this.gesture_interpreter.on("swiperight", call_ref);
         this.gesture_interpreter.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
 
+        this.current_app = undefined;
+
         // Make an initial call to set up render callbacks
         this.call_render();
     }
@@ -359,6 +361,17 @@ class emulator implements emulator {
     }
 
     /**
+     * Gets an image from the specified source for use with the grapics context.
+     * @param src The source URL with respect to the root directory of the
+     * emulator.
+     */
+    get_image(src: string): Image {
+        let output = new Image();
+        output.src = src;
+        return output;
+    }
+
+    /**
      * Gets the current time in a Date object.
      */
     public get_time (): Date {
@@ -380,7 +393,8 @@ class emulator implements emulator {
      * Ask the emulator to close the application.
      */
     public go_home (): void {
-        this.current_app.home_callback();
+        if (this.current_app && this.current_app.home_callback)
+            this.current_app.home_callback();
     }
 
     /*
