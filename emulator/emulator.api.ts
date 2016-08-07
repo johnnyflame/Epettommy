@@ -1,35 +1,68 @@
 /**
- * Emulator internals. Contains the API as well as the emulator UI.
+ * Emulator Interface.
  * 
- * This contains several classes
+ * This contains several interface
  * 
- *  - The emulator class. The public methods on this define the public interface
+ *  - The emulator interface. The public methods on this define the public interface
  *  for an application running inside the emulator.
- *  - The emulator_ui class. This is the internal workings of the emulator's
- *  "operating system" user interface, and is responsible for loading applications
+ *  - The graphics context for drawing on the watch screen.
  *  - The emulator_storage class, which is how the application can access 
  *  persistant storage on the smart watch.
  * 
  */
  
 /** Available gesture types. */
-enum gesture_type {tap, swipeup, swipedown, swipeleft, swiperight}
+enum gesture_type {
+    /** Single tap. */
+    tap,
+    /** Swipe upwards. */
+    swipeup,
+    /** Swipe downwards. */
+    swipedown,
+    /** Swipe to the left. */
+    swipeleft,
+    /** Swipe to the right. */
+    swiperight}
 
-/** Type for gesture callback functions */
+/** Type for gesture callback functions.
+ * @param g Type of gesture event
+ * @param x x-coordinate of event
+ * @param y y-coordinate of event
+ */
 type gesture_callback = (g: gesture_type, x: number, y: number) => void;
-/** callback identifers to unregister a callback later */
+/** Identifers to unregister a callback after it has outlived its use. */
 type gesture_callback_id = number;
 
+/** Image type that can be requested from the emulator, and passed in to the graphics context. */
 type Image = any;
 
-/* Local Storage Class. Stores an object by converting it to a JSON string
- * and storing it in the browser's local storage. Note: this cannot store functions */
+/**
+ * Interface for a connection to the emulator's persistant storage.
+ */
 interface emulator_storage_connection {
 
-    /* Add/Set the given value/object to be stored at the given key. */
+    /**
+     * Store a key, value pair. The value should be a simple object, without member functions.
+     * It must be capable of being stored in JSON.
+     *
+     * The storage is global, so keys should be unique to the application.
+     * @param key Storage key
+     * @param value Simple object
+     */
     set_object(key: string, value: any): void;
-    /* Retrieve the object in local storage corresponding to the given key. */
+    
+    /** Retrieve a value from persistant storage.
+     * @param key with which the item was stored
+     * @return the stored item
+     */
     get_object(key: string): any;
+
+    /**
+     * Remove a key, value pair from persistant storage.
+     * @param key for pair to remove
+     */
+    remove_object(key: string): void;
+    
 }
 
 /**
@@ -103,7 +136,7 @@ interface graphics_context {
     fillText(test: string, x: number, y: number): void;
     
     /**
-     * Clear the screen.
+     * Clear the screen. (Draw a white rectangle over everything)
      */
     clear(): void;
     
@@ -166,29 +199,53 @@ interface graphics_context {
 
 /*
  * Main emulator API.
+ *
+ * The emulator API has several main subsystems:
+ *
+ * Persistant storage is facilitated by get_local_storage, and the emulator_storage_connection interface.
+ *
+ * Graphics are handled by: get_graphics_context, and the graphics_context interface.
+ *
+ * The handling of gesture events is done by an application
+ * registering a function (or functions) with the emulator (using
+ * add_gesture_handler). These functions will continue to recieve
+ * events as they occur, until they are removed (with
+ * remove_gesture_handler).
+ *
+ * Time manipulation is performed by using the emulator as a clock source, via the get_time method.
+ *
+ * Logging facilities are available with the log method.
+ *
+ * Images can be loaded with the get_image method.
+ *
+ * Applications can be registered with the emulator user interface with a call to
+ * register_application. This allows the user to select which application to execute.
  */
 interface emulator {
 
-    /* Get a CanvasRenderingContext2D which can draw on the display.
-     * 
-     * TODO: do we need to change this to our own context type?
+    /**
+     * Get a graphics_context which can draw on the display.
+     * @return the watch screen graphics context
      */
     get_graphics_context(): graphics_context;
 
     /**
-     * Get the emulator's persistant storage.
+     * Access persistant storage.
+     * @return an emulator storage connection.
      */
     get_local_storage(): emulator_storage_connection;
 
     /**
-     * Add a handler for gestures. Uses the given callback in the context 
-     * of the given object
+     * Add a handler to recieve graphics events.
+     * @param callback function to recieve notification of gesture events.
+     * @returns an ID which can be used to remove this handler from the emulator.
      */
     add_gesture_handler(callback: gesture_callback): gesture_callback_id;
 
     /**
      * Remove/unset a handler for gestures. Must provide the returned value
      * from the corresponding call to add_gesture_handler
+     * @param callback_id ID returned by the corresponding call to add_gesture_handler
      */
     remove_gesture_handler(callback_id: gesture_callback_id): void;
 
@@ -209,24 +266,27 @@ interface emulator {
     
     /**
      * Gets an image from the specified source for use with the grapics context.
-     * @param src The source URL with respect to the root directory of the
-     * emulator.
      * 
      * The image is not guranteed to be loaded immediately, but this function
      * will return a valid object immediately.
+     
+     * @param src The source URL with respect to the root directory of the
+     * emulator.
+     * @return an Image which can be passed into a graphics context's drawImage
      */
     get_image(src: string): Image;
 
     /**
      * Register an application with the emulator
-     * 
+     * @param name Name to identify the program to the user.
      * @param start_callback will be called to initilize the application.
      * @param render_callback will be called to redraw/update the display periodically
      * (each frame). render_callback should return true if the application is to
      * continue, else control will be returned to the operating system. The
      * application can still reciever gesture notifications after returning false,
      * so these must be cleaned up first if this is not desired.
-     * @param home_callback should cause the application to exit
+     * @param home_callback should cause the application to exit. Possibly on the
+     * next call to render_callback.
      */
     register_application (
         name: string,
@@ -238,7 +298,7 @@ interface emulator {
 
 
 /**
- * This global represents how an application should access the emulator/smartwatch
+ * This is the global instance for access to the smart watch.
  * 
  * Applications may take it for granted that this will be defined.
  * 
