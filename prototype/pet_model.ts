@@ -207,15 +207,17 @@ class tommy_model {
         let day_diff = dt / day_time; // convert dt to days
         
         // Getting hungry - from full to 0 in 4 days
-        this.hunger = this.hunger - day_diff / 4;
+        this.set_hunger(this.hunger - day_diff / 4);
         if (this.hunger <= 0) {
-            this.hunger = 0;
-            this.health = 0;
+            this.set_hunger(0);        
+            this.set_health(this.health - day_diff / 4);
+            this.set_emotion(this.emotion - day_diff / 4);
         } else {
             // Inverse decay to mid health over time.
-            this.health = (this.health - 0.5) / (day_diff * 0.5 + 1) + 0.5;
+            this.set_health((this.health - 0.5) / (day_diff * 0.5 + 1) + 0.5);
         }
-        // Inverse devay to mid emotion over time.
-        this.emotion = (this.emotion - 0.5) / (day_diff * 0.5 + 1) + 0.5;
+        // Inverse decay to mid emotion over time.
+        this.set_emotion((this.emotion - 0.5) / (day_diff * 0.5 + 1) + 0.5);
+        this.set_strength((this.strength - 0.2) / (day_diff * 0.5 + 1) + 0.2);
     }
 }
