@@ -125,6 +125,8 @@ class tommy_home extends scene {
             this.tommy_slider.set_frame(this.img_shock);
         } else if (model.get_emotion() >= 0.8) {
             this.tommy_slider.set_frame(this.img_excited);
+        } else {
+             this.tommy_slider.set_frame(this.img_happy);
         }
 
         this.health.set_size(this.barwidth * this.app.pet_model.get_health(), 10);
