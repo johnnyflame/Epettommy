@@ -4,55 +4,63 @@ enum direction {LEFT, RIGHT};
 
 abstract class game_player {
     
-    // The graphic to be displayed for the player
+    /**  The graphic to be displayed for the player*/
     actor: actor;
+    
     parent: tommy_game; // tommy game. This will be automatically set when the player
     // is added to a game
     
-    // y-velocity. Some accounting for jumping
+    /** y-velocity. Some accounting for jumping */
     vy: number = 0;
-    // x-velocity. Smoothing out player movements
+    /** x-velocity. Smoothing out player movements */
     vx: number = 0;
-    
+
+    /** Is the player jumping currently */
     protected jumping: boolean;
        
-    // Get the relative amount of push since the last check
-    // This is relative to 1, being a single tap, for the default strength/mass
-    // pet
+    /**
+     * Get the relative amount of push since the last check
+     * This is relative to 1, being a single tap, for the default strength/mass
+     * pet
+     */
     abstract get_push(): number;
     
-    // Get the direction
+    /** Get the direction */
     abstract get_direction(): direction;
     
-    // returns true to start a jump
+    /** returns true to start a jump */
     abstract request_jump(): boolean;
     
-    // Get mass - i.e. larger mass jumps slower, but is harder to push
+    /** Get mass - i.e. larger mass jumps slower, but is harder to push */
     abstract get_mass (): number;
     
-    // Is used by game engine
+    /** Is used by game engine */
     set_jump_state (jump: boolean): void {
         this.jumping = jump;
     }
-    
+
+    /** @return is the player jumping */
     is_jumping (): boolean {
         return this.jumping;
     }
 
-    // Instruction to move by controller. y component moves for jump (-ve for up)
-    // x component for push
+    /**
+     * Instruction to move by controller. y component moves for jump (-ve for up)
+     * x component for push
+     */
     move (x: number, y: number): void {
         this.actor.set_position(this.actor.x + x, this.actor.y + y);
     }
     
-    // Returns a number between 0 and 1 corresponding to the stamina of the player
-    // the game_player itself is responsible for dimishing/modifying the stamina
+    /** Returns a number between 0 and 1 corresponding to the stamina of the player
+     the game_player itself is responsible for dimishing/modifying the stamina */
     abstract get_stamina (): number;
     
-    // Tells the game_player if it won the game, and gives it the opportunity
-    // to tidy up. (e.g. unregister gesture handers, etc) The object can expect
-    // to not recieve calls to any of its methods, however, the actor may still
-    // be drawn after this function is called.
+    /** Tells the game_player if it won the game, and gives it the opportunity
+     * to tidy up. (e.g. unregister gesture handers, etc) The object can expect
+     * to not recieve calls to any of its methods, however, the actor may still
+     * be drawn after this function is called.
+    */
     abstract game_over (won: boolean): void; 
 }
 
@@ -227,7 +235,10 @@ class game_physics {
             (below.abs_y() + below.abs_height() / 2);
     }
     
-    // Is a1 left or right of a2? Compare by center points. Returns Right/false if equal.
+    /**
+     * Is a1 left or right of a2? Compare by center points.
+     *  @return true if a1 is left of a2, right/false if equal.
+     */
     is_left (a1: actor, a2: actor): boolean {
         return (a1.abs_x() + a1.abs_width() / 2) < 
             (a2.abs_x() + a2.abs_width() / 2);
@@ -270,21 +281,28 @@ class game_physics {
         /* JUMPING LOGIC */
         dt = dt / 1000; // Normalize to seconds so vy in px/sec
         if (a.request_jump()) {
+            // Start a new jump
             let vy_init = -200;
             
             a.set_jump_state(true);
             a.vy = vy_init;
         }
         if (a.is_jumping()) {
+            // Continue a jump
             let gravity = 250;
             
             a.move(0, a.vy * dt);
             a.vy += gravity * dt;
             
             if (this.colliding(a.actor, platform)) {
+                // Stop on the platform
                 a.vy = 0;
                 a.set_jump_state(false);
                 a.move(0, -a.actor.abs_y() - a.actor.abs_height() + platform.abs_y());
+            } else if (a.actor.y <= 0) {
+                // Stop at the top of the window
+                a.actor.y = 1;
+                a.vy = 0;
             }
         }
     }
@@ -332,16 +350,19 @@ class game_physics {
         let right = (this.is_left(a1.actor, a2.actor) ? a2 : a1);
         let left  = (this.is_left(a1.actor, a2.actor) ? a1 : a2);
 
-        // Calculate different step distances.
+        // Calculate different push strengths.
         let push1 = left.get_push() 
             * ((left.get_direction() === direction.RIGHT) ? 1 : -1)
             * (left.get_stamina() + 0.1);
         let push2 = right.get_push() 
             * (right.get_stamina() + 0.1)
             * ((right.get_direction() === direction.RIGHT) ? 1 : -1);
-           
+
+        // Update velocities
         left.vx  += push1;
-        right.vx += push2; 
+        right.vx += push2;
+
+        // Handle collisions
         if (this.colliding(left.actor, right.actor) && 
                 (
                     (right.vx <= 0 && left.vx >= 0) ||  // Inwards
