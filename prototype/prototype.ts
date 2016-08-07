@@ -242,7 +242,8 @@ class tommy_stats extends scene {
         );
     }
     
-    update () {
+    update (dt: number) {
+        this.app.pet_model.update(dt);
         this.health.set_size(this.barwidth * this.app.pet_model.get_health(), this.barheight);
         this.hunger.set_size(this.barwidth * this.app.pet_model.get_hunger(), this.barheight);
         this.strength.set_size(this.barwidth * this.app.pet_model.get_strength(), this.barheight);
@@ -350,6 +351,10 @@ class tommy_food extends scene {
             (e: gesture_type, x: number, y: number) => 
                 this.gest_handle(e, x, y)
         );
+    }
+
+    update (dt: number) {
+        this.app.pet_model.update(dt);
     }
     
     end () {

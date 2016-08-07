@@ -5,8 +5,10 @@
  * 
  * This file contains the implementation of the emulator. This is split into
  * several classes:
+ *
  *  - The emulator class. The public methods on this define the public interface
  *  for an application running inside the emulator.
+ *
  *  - The emulator_ui class. This is the internal workings of the emulator's
  *  "operating system" user interface, and is responsible for loading applications
  *  - The emulator_storage class, which is how the application can access 
@@ -31,8 +33,8 @@ declare var Hammer: any;
     width: () => number;
     height: () => number;
     clear: () => void;
-}
- 
+ }
+
 /**
  * Get the width of the context
  */
@@ -60,7 +62,7 @@ CanvasRenderingContext2D.prototype.clear = function() {
  * and storing it in the browser's local storage. */
 class emulator_storage {
 
-    /** Update the table displaying the local storage */
+    /** Update the table displaying the local storage so the user can see the contents */
     private static update_table () {
         
         let table = document.getElementById("data_table");
@@ -73,15 +75,16 @@ class emulator_storage {
 
             for (let key in localStorage) {
                 data += "<tr><td>" + key + "</td><td>" + localStorage[key] + "</td>" +
-                        "<td><a onclick=\"emulator_storage.remove_object('" + key + 
+                        "<td><a onclick=\"new emulator_storage().remove_object('" + key + 
                     "')\"" + ">Delete</a></td></tr>";
             }
 
             table.innerHTML = data;
         }
     }
-    
-    public static remove_object (key: string) {
+
+    /** Remove the object corresponding to the given key */
+    public remove_object (key: string) {
         localStorage.removeItem(key);
         emulator_storage.update_table();
     }
@@ -168,7 +171,7 @@ class emulator_ui {
     }
 
 
-    /** Change the current application on swipe, and call the (blocking) callback 
+    /** Change the current application on swipe, and call the start callback 
      * when tapped.
      */
     gest_handle(evt: gesture_type, x: number, y: number) {
@@ -211,29 +214,30 @@ class emulator_ui {
 
 class emulator implements emulator {
 
-    // Emulator display canvas
+    /** Emulator display canvas */
     private display: HTMLCanvasElement;
-    // Emulator UI instance
+    /* Emulator UI instance */
     private ui: emulator_ui;
-    // List of gesture callbacks
+    /** List of gesture callbacks */
     private gesture_handlers: gesture_callback[];
-    // Gesture interpreter object - third party library
+    /** Gesture interpreter object - third party library */
     private gesture_interpreter: any;
-    // Current Renderer
+    /** Current application to be rendered */
     current_app: registered_application;
     
-    // Dates for time accelleration
+    /** Last date that the get_time function was called */
     private last_date: Date;
+    /** Last date that the get_time function returned */
     private last_reported_date: Date;
 
-    /* Construct the smart watch */
+    /** Construct the smart watch */
     constructor() {
         this.gesture_handlers = [];
         this.ui = new emulator_ui();
         this.last_date = this.last_reported_date = new Date();
     }
 
-    /* Initialize and start the smart watch */
+    /** Initialize and start the smart watch */
     public init(canvas_id: string) {
         this.display = <HTMLCanvasElement> document.getElementById(canvas_id);
 
@@ -257,15 +261,17 @@ class emulator implements emulator {
         this.call_render();
     }
 
-    /* Get a CanvasRenderingContext2D which can draw on the display.
+    /**
+     * Get a CanvasRenderingContext2D which can draw on the display.
      * 
-     * TODO: do we need to change this to our own context type?
+     * This is technically a browser object, but we have specified
+     * the interface as part of the emulator, and also added some extensions.
      */
     public get_graphics_context(): graphics_context {
         return this.display.getContext("2d");
     }
 
-    /*
+    /**
      * This is the function responsible for getting the application
      * to draw a frame, by calling the application's render() function.
      * 
@@ -289,6 +295,8 @@ class emulator implements emulator {
                 // Start back up UI
                 this.ui.init();
             }
+        } else {
+            this.ui.draw();
         }
     }
 
@@ -310,6 +318,9 @@ class emulator implements emulator {
     /**
      * Remove/unset a handler for gestures. Must provide the returned value
      * from the corresponding call to add_gesture_handler
+     *
+     * This implementation has a slight memory leak, which is counter-balanced by
+     * sparse arrays in ECMAscript.
      */    
     public remove_gesture_handler(callback_id: gesture_callback_id) {
         this.gesture_handlers[callback_id] = undefined;
@@ -390,29 +401,34 @@ class emulator implements emulator {
     }
 
     /**
-     * Ask the emulator to close the application.
+     * Ask the emulator to close the current application.
      */
     public go_home (): void {
         if (this.current_app && this.current_app.home_callback)
             this.current_app.home_callback();
     }
 
-    /*
+    /**
      * Register an application with the emulator
      * 
-     * start_callback will be called to initilize the application.
-     * render_callback will be called to redraw/update the display periodically
+     * @param start_callback will be called to initilize the application.
+     * @param render_callback will be called to redraw/update the display periodically
      * (each frame). render_callback should return true if the application is to
      * continue, else control will be returned to the operating system. The
      * application can still reciever gesture notifications after returning false,
-     * so these must be cleaned up first if this is not desired. home_callback is
-     * called to request the application to stop, allowing the return to the emulator.
-     * The application can choose if this simply hides, or quits, but should not ignore.
+     * so these must be cleaned up first if this is not desired.
+     * @param home_callback is called to request the application to stop,
+     * allowing the return to the emulator. The application can choose if this
+     * simply hides, or quits, but should not ignore.
      */
     public register_application (name: string, start_callback: () => void, render_callback: () => boolean, home_callback: () => void) {
         this.ui.app_list.push(new registered_application (name, start_callback, render_callback, home_callback));
     }
-    
+
+    /**
+     * Log a message. This logs to the page element with
+     * id="emulator_console", and to the browser console.
+     */
     public log (log_text: string): void {
         console.log(log_text);
         let log_div = document.getElementById("emulator_console");
@@ -425,5 +441,5 @@ class emulator implements emulator {
 
 
 
-/* Make global emulator instance */
+/** Make global emulator instance */
 os  = new emulator();

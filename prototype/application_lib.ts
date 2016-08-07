@@ -9,13 +9,7 @@
  *   each actor gets drawn when the scene is told to draw
  * - An application manages which scene is running, and handles getting every
  *   frame drawn by appealing to the cuurrent scene.
- * 
- * Some actors are implented:
- * - A Sprite (bitmap) display
- * - A Rectangle
- * - A text label
- * - A button, which makes any other actor accept tap events
- * - An animator, which allows changing between other actors as frames.
+ * - An actor can be position relative to a parent actor.
  * 
  */
 
@@ -34,12 +28,14 @@
  */
 abstract class actor {
 
-    /* Width and height of the actor */
+    /** Width of the actor*/
     width: number;
+    /** Hight of the actor*/
     height: number;
 
-    /* actor position */
+    /* Actor x position */
     x: number;
+    /* Actor y position */
     y: number;
     
     /** Parent Actor */
@@ -48,32 +44,32 @@ abstract class actor {
     /** Is the actor visible */
     visible: boolean;
 
-    /** draw the actor on the display */
+    /** Draw the actor on the display */
     abstract draw(ctx: graphics_context): void;
 
     /**
      * Update the actor. This is given dt - the amount of time that has passed
      * since the last time the scene was updated. In milliseconds.
      * 
-     * This would be where, for example, the actor would change it's position, or
-     * perhaps it's look to move or animate.
+     * This would be where, for example, the actor would change its position, or
+     * perhaps look to move or animate.
      */
     abstract update(dt: number): void;
 
-    /** Put it at the given position */
+    /** Put the actor at the given position */
     set_position(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
 
-    /** Set the size. */
+    /** Set the actor's size. */
     set_size(width: number, height: number) {
         this.width = width;
         this.height = height;
     }
 
     
-    /** Calculate the absolute position with respect to the watch for drawing*/
+    /** Calculate the x position with respect to the watch for drawing */
     abs_x(): number {
         if (this.parent) {
             return this.parent.abs_x() + this.x;
@@ -81,7 +77,7 @@ abstract class actor {
         return this.x;
     }
 
-    /** Calculate the absolute position with respect to the watch for drawing*/
+    /** Calculate the y position with respect to the watch for drawing */
     abs_y(): number {
         if (this.parent) {
             return this.parent.abs_y() + this.y;
@@ -89,7 +85,7 @@ abstract class actor {
         return this.y;
     }
 
-    /** Calculate the size, enclosed by the parent*/
+    /** Calculate the width, enclosed by the parent*/
     abs_width(): number {
         if (this.parent) {
             let max_width = this.parent.abs_width() - this.x;
@@ -98,7 +94,7 @@ abstract class actor {
         return this.width;
     }
 
-    /** Calculate the size, enclosed by the parent*/
+    /** Calculate the height, enclosed by the parent*/
     abs_height(): number {
         if (this.parent) {
             let max_h = this.parent.abs_height() - this.y;
@@ -112,8 +108,10 @@ abstract class actor {
  * A scene is responsible for drawing all of the actors, and updating them all.
  * draw() and update() will be called from the main application loop.
  * 
- * The purpose of putting everything in a scene means that changing the UI stage
- * is as simple as changing the active scene class.
+ * The purpose of putting everything in a scene means that changing the UI view
+ * is as simple as changing the active scene instance.
+ *
+ * Actors are drawn in the order they are added to the scene.
  */
 class scene extends actor {
     /** list of actors to display */
@@ -171,10 +169,14 @@ class scene extends actor {
  */
 class application {
 
+    /** Currently displayed scene */
     current_scene: scene;
+    /** Running flag. Application exits next call to render() when set to false. */
     running: boolean;
 
+    /** Time of last render() call */
     private last_time: number;
+    /** Time of current render() call */
     private curr_time: number;
 
     /**
@@ -190,7 +192,7 @@ class application {
     }
 
     /**
-     * Run Main Loop. This is expected to be called by the os quite frequently
+     * Run Main Loop. This is expected to be called by the OS quite frequently
      * to redraw the scene, and call update().
      */
     public render(): boolean {
@@ -274,7 +276,7 @@ class sprite extends actor {
      * position and size inside the sprite-sheet image. Expects user to set
      * position.
      */
-    constructor(private image: any, private window: sprite_window) {
+    constructor(private image: Image, private window: sprite_window) {
         super();
         this.width = this.window.w;
         this.height = this.window.h;
@@ -309,13 +311,16 @@ class sprite extends actor {
  * Simple button. Recieves tap events when visible. Displays another actor.
  */
 class button extends actor {
-
+    /** Displayed actor */
     private display: actor;
+    /** Callback for button presses */
     private callback: () => void;
+    /** Gesture callback */
     private handler: gesture_callback_id;
 
 
-    /** Make a new button out of an actor, with a given callback. Note, position
+    /**
+     * Make a new button out of an actor, with a given callback. Note, position
      * and size of the actor should already be set.
      */
     constructor(display: actor, callback: () => void) {
@@ -378,8 +383,8 @@ class rect extends actor {
     /** Draw the rect. */
     draw(ctx: graphics_context): void {
         ctx.strokeStyle = this.strokeStyle;
-        ctx.fillStyle = this.fillStyle;
-        ctx.lineWidth = this.lineWidth;
+        if (this.fillStyle !== "none") ctx.fillStyle = this.fillStyle;
+        if (this.strokeStyle !== "none") ctx.lineWidth = this.lineWidth;
         ctx.beginPath();
         ctx.rect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
         ctx.closePath();
@@ -431,9 +436,12 @@ class label extends actor {
  * This ensures that the frame will be the correct one at the time of update, skipping frames if necessary.
  */
 class animator extends actor {
-    private frame: number; // Index of current frame
-    private actors: actor[] = []; // List of frames
-    private accumulator: number; // Time accumulated since frame was meant to start (millisec)
+    /** Index of current frame */
+    private frame: number;
+    /** List of frames */
+    private actors: actor[] = [];
+    /** Time accumulated since frame was meant to start (millisec) */
+    private accumulator: number; 
 
     /** 
      * Construct an animator at the given frame rate. Give fps = 0 to disable
