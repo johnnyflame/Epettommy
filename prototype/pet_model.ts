@@ -14,7 +14,7 @@ class tommy_model {
     private strength: number = 0.2;
     
     /// Private member stat_add, increase state increment.
-    private stat_increment: number = 0.1;
+    private stat_increment: number = 0.05;
     
     /// Private member max_hunger, the maximum hunger limit.
     private max_hunger: number = 1.2;
@@ -184,6 +184,7 @@ class tommy_model {
     */
     play () {
         this.set_emotion(this.emotion + this.stat_increment * 3);
+        this.set_strength(this.strength + this.stat_increment);
         this.last_interaction_time = os.get_time();
         this.save_data();
     }
