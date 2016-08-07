@@ -295,6 +295,8 @@ class emulator implements emulator {
                 // Start back up UI
                 this.ui.init();
             }
+        } else {
+            this.ui.draw();
         }
     }
 
@@ -439,5 +441,5 @@ class emulator implements emulator {
 
 
 
-/* Make global emulator instance */
+/** Make global emulator instance */
 os  = new emulator();

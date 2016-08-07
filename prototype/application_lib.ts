@@ -383,8 +383,8 @@ class rect extends actor {
     /** Draw the rect. */
     draw(ctx: graphics_context): void {
         ctx.strokeStyle = this.strokeStyle;
-        ctx.fillStyle = this.fillStyle;
-        ctx.lineWidth = this.lineWidth;
+        if (this.fillStyle !== "none") ctx.fillStyle = this.fillStyle;
+        if (this.strokeStyle !== "none") ctx.lineWidth = this.lineWidth;
         ctx.beginPath();
         ctx.rect(this.abs_x(), this.abs_y(), this.abs_width(), this.abs_height());
         ctx.closePath();
