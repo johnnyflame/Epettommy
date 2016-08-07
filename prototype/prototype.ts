@@ -297,7 +297,7 @@ class tommy_food extends scene {
         feed_sala.set_position(2 * img_size + outer_padding, outer_padding);
         feed_sala.set_size(img_size, img_size);
         let sala_button = new button(feed_sala,
-            () => {this.app.pet_model.feed(0.1); this.app.go_home(); }
+            () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
         );
         this.add(sala_button);
         this.buttons.push(sala_button);
@@ -306,7 +306,7 @@ class tommy_food extends scene {
         feed_ba.set_position(img_size + outer_padding, img_size + outer_padding);
         feed_ba.set_size(img_size, img_size);
         let ba_button = new button(feed_ba,
-            () => {this.app.pet_model.feed(0.3); this.app.go_home(); }
+            () => {this.app.pet_model.feed(0.1); this.app.go_home(); }
         );
         this.add(ba_button);
         this.buttons.push(ba_button);
@@ -325,7 +325,7 @@ class tommy_food extends scene {
                                 2 * img_size + outer_padding);
         feed_pr.set_size(img_size, img_size);
         let pr_button = new button(feed_pr,
-            () => {this.app.pet_model.feed(0.2); this.app.go_home(); }
+            () => {this.app.pet_model.feed(0.3); this.app.go_home(); }
         );
         this.add(pr_button);
         this.buttons.push(pr_button);
