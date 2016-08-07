@@ -270,13 +270,13 @@ class game_physics {
         /* JUMPING LOGIC */
         dt = dt / 1000; // Normalize to seconds so vy in px/sec
         if (a.request_jump()) {
-            let vy_init = -100;
+            let vy_init = -200;
             
             a.set_jump_state(true);
             a.vy = vy_init;
         }
         if (a.is_jumping()) {
-            let gravity = 60;
+            let gravity = 250;
             
             a.move(0, a.vy * dt);
             a.vy += gravity * dt;
@@ -302,7 +302,7 @@ class game_physics {
      */
     do_move(p: game_player, dt: number): void {
         let dt_sec = dt / 1000; // Convert to seconds
-        let vx_scale = 10; // so vx in 30pix/sec
+        let vx_scale = 15; // so vx in 30pix/sec
         p.move(p.vx * vx_scale * dt_sec, 0);
         
     }
