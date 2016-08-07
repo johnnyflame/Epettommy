@@ -11,7 +11,7 @@ class tommy_model {
     /// Private member emotion, intial emotion set to 0.5.
     private emotion: number = 0.5;
     /// Private member strength, intial strength set to 1.
-    private strength: number = 1.0;
+    private strength: number = 0.2;
     
     /// Private member stat_add, increase state increment.
     private stat_increment: number = 0.1;
@@ -23,7 +23,7 @@ class tommy_model {
     /// Private member max_emotion, the maximum emotion limit.
     private max_emotion: number = 1.0;
     /// Private member min_strength, the minimum strength limit.
-    private min_strength: number = 1.0;
+    private max_strength: number = 1.0;
     /// Key for saving and receiving pet values.    
     private tommy_state_key: string = "tommy_state";
 
@@ -134,8 +134,11 @@ class tommy_model {
      */
     set_strength(strength: number) {
         this.strength = strength;
-        if (this.strength < this.min_strength) {
-            this.strength = this.min_strength;
+        if (this.strength < 0.1) {
+            this.strength = 0.1;
+        }
+        if (this.strength > this.max_strength) {
+            this.strength = this.max_strength;
         }
     }
     /**
@@ -155,17 +158,21 @@ class tommy_model {
             this.set_health(this.health - this.stat_increment);
             this.set_emotion(this.emotion + this.stat_increment);
             this.set_hunger(this.hunger + this.stat_increment * 4);
+            this.set_strength(this.strength + this.stat_increment); 
         }else if ((meal_quality >= 0.2)&&(meal_quality <= 0.3)) {
             this.set_health(this.health + this.stat_increment);
-            this.set_hunger(this.hunger + this.stat_increment * 3);        
+            this.set_hunger(this.hunger + this.stat_increment * 3);
+            this.set_strength(this.strength + this.stat_increment * 2);        
         }else if ((meal_quality >= 0.1)&&(meal_quality <= 0.2)) {
             this.set_health(this.health + this.stat_increment);
             this.set_emotion(this.emotion - this.stat_increment);
             this.set_hunger(this.hunger + this.stat_increment * 2);
+            this.set_strength(this.strength + this.stat_increment); 
         }else if ((meal_quality >= 0.0)&&(meal_quality <= 0.1)) {
             this.set_health(this.health + this.stat_increment * 2);
             this.set_emotion(this.emotion - this.stat_increment * 2);
             this.set_hunger(this.hunger + this.stat_increment);
+            this.set_strength(this.strength + this.stat_increment *0.5); 
         }
         this.last_interaction_time = os.get_time();
         this.save_data();
