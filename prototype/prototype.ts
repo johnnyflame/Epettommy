@@ -56,6 +56,11 @@ class tommy_home extends scene {
     // Set up the images, etc
     constructor(private app: ePetTommy) {
         super();
+        
+        let img = ePetTommy_gfx.loader.get_sprite("space_home", "0");
+        img.set_position(0, 0);
+        img.set_size(os.get_graphics_context().width(), os.get_graphics_context().height());
+        this.add(img);
 
         this.tommy_slider = new animator(0);
         this.tommy_slider.add(ePetTommy_gfx.loader.get_sprite("tommy", "happy"));
@@ -82,16 +87,16 @@ class tommy_home extends scene {
         top_carret.set_position((w - right_carret.width) / 2,  0);
         this.add(top_carret);
                 
-        let food_label = new label("Feed", "10px sans-serif");
-        food_label.set_position(0, (h - left_carret.height) / 2);
+        let food_label = new label("Feed", "10px sans-serif", "#FFFFFF", "center");
+        food_label.set_position(left_carret.width / 2, (h - left_carret.height) / 2);
         this.add(food_label);
         
-        let stat_label = new label("Stats", "10px sans-serif");
-        stat_label.set_position((w - right_carret.width),  (h - left_carret.height) / 2);
+        let stat_label = new label("Stats", "10px sans-serif", "#FFFFFF", "center");
+        stat_label.set_position((w - right_carret.width / 2),  (h - left_carret.height) / 2);
         this.add(stat_label);
         
-        let game_label = new label("Play", "10px sans-serif");
-        game_label.set_position((w - right_carret.width) / 2,  50);
+        let game_label = new label("Play", "10px sans-serif", "#FFFFFF", "center");
+        game_label.set_position(w / 2,  50);
         this.add(game_label);
         
         this.tommy_slider.set_position(80, 80);
@@ -403,7 +408,10 @@ class tommy_game extends scene {
         
         
         // Add background first so it is drawn first
-
+        let img = ePetTommy_gfx.loader.get_sprite("clouds", "0");
+        img.set_position(0, 0);
+        img.set_size(os.get_graphics_context().width(), os.get_graphics_context().height());
+        this.add(img);
         // Add platform below players
         this.platform = ePetTommy_gfx.loader.get_sprite("grass_platform", "0");
         this.platform.set_size(platform_width, platform_height);
@@ -514,6 +522,18 @@ class ePetTommy_gfx {
                     src: "prototype/resources/grassDirtPlatform.png",
                     regions: {
                         "0": { x: 0, y: 140, w: 129, h: 64 }
+                    }
+                },
+                "clouds": {
+                    src: "prototype/resources/CloudBackground.png",
+                    regions: {
+                        "0": { x: 0, y: 0, w: 320, h: 320 }
+                    }
+                },
+                "space_home": {
+                    src: "prototype/resources/skybox_back.png",
+                    regions: {
+                        "0": { x: 0, y: 0, w: 320, h: 320 }
                     }
                 },
                 "salad": {

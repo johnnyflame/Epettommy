@@ -150,29 +150,29 @@ class tommy_model {
     feed(meal_quality: number) {
         
         // Adsust emotion and health based on food quality.
-        if ((meal_quality >= 0.4)&&(meal_quality <= 0.5)){
+        if ((meal_quality >= 0.4) && (meal_quality <= 0.5)) {
             this.set_health(this.health - this.stat_increment * 2);
             this.set_emotion(this.emotion + this.stat_increment * 2);
             this.set_hunger(this.hunger + this.stat_increment * 5);
-        }else if ((meal_quality >= 0.3)&&(meal_quality <= 0.4)) {
+        }else if ((meal_quality >= 0.3) && (meal_quality <= 0.4)) {
             this.set_health(this.health - this.stat_increment);
             this.set_emotion(this.emotion + this.stat_increment);
             this.set_hunger(this.hunger + this.stat_increment * 4);
             this.set_strength(this.strength + this.stat_increment); 
-        }else if ((meal_quality >= 0.2)&&(meal_quality <= 0.3)) {
+        }else if ((meal_quality >= 0.2) && (meal_quality <= 0.3)) {
             this.set_health(this.health + this.stat_increment);
             this.set_hunger(this.hunger + this.stat_increment * 3);
             this.set_strength(this.strength + this.stat_increment * 2);        
-        }else if ((meal_quality >= 0.1)&&(meal_quality <= 0.2)) {
+        }else if ((meal_quality >= 0.1) && (meal_quality <= 0.2)) {
             this.set_health(this.health + this.stat_increment);
             this.set_emotion(this.emotion - this.stat_increment);
             this.set_hunger(this.hunger + this.stat_increment * 2);
             this.set_strength(this.strength + this.stat_increment); 
-        }else if ((meal_quality >= 0.0)&&(meal_quality <= 0.1)) {
+        }else if ((meal_quality >= 0.0) && (meal_quality <= 0.1)) {
             this.set_health(this.health + this.stat_increment * 2);
             this.set_emotion(this.emotion - this.stat_increment * 2);
             this.set_hunger(this.hunger + this.stat_increment);
-            this.set_strength(this.strength + this.stat_increment *0.5); 
+            this.set_strength(this.strength + this.stat_increment * 0.5); 
         }
         this.last_interaction_time = os.get_time();
         this.save_data();
