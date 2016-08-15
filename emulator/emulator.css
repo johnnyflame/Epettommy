@@ -7,10 +7,164 @@
  #emulator_display {
      width: 320px;
      height: 320px;
-     border: 1px #000 solid;
+     border: 30px #000 solid;
+     border-radius: 10px;
+     margin: 20px auto;
+     display: block;
  }
  
  /* Styling for the console */
   #emulator_console {
-     border: 1px #000 solid;
- }
+    border: 1px #000 solid;
+    height: 150px;
+    overflow-y: auto;
+  }
+
+ 
+  #home_btn {
+     padding: 0px;
+     margin: 0px auto;
+     display: block;
+     position: relative;
+     top: -45px;
+     text-align: center;
+  }
+  
+ /*
+  * Some excerpts from Bootstrap CSS, removing some cross compatability stuff
+  * which can cause warnings
+  */
+* {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+html {
+  font-family: sans-serif;
+}
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #fff;
+}
+a {
+  background-color: transparent;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+a {
+  color: #337ab7;
+  text-decoration: none;
+}
+a:hover,
+a:focus {
+  color: #23527c;
+  text-decoration: underline;
+}
+a:focus {
+  outline: thin dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  background: transparent;
+}
+td,
+th {
+  padding: 0;
+}
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+}
+.table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #ddd;
+}
+.table-hover > tbody > tr:hover {
+  background-color: #f5f5f5;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+input[type="range"] {
+  display: block;
+  width: 100%;
+}
+
+.container:before,
+.container:after,
+.row:before,
+.row:after
+{
+  display: table;
+  content: " ";
+}
+
+.container:after,
+.row:after
+{
+  clear: both;
+}
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+.row {
+  margin-right: -15px;
+  margin-left: -15px;
+}
+.col-half {
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+@media (min-width: 992px) {
+  .col-half {
+    float: left;
+    width: 50%;
+  }
+}
+@media (min-width: 768px) {
+  .container {
+    width: 750px;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+    width: 970px;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    width: 1170px;
+  }
+}

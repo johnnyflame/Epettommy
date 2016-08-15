@@ -9,6 +9,8 @@ QUnit.test("Emulator: Storage", function(assert: any) {
     let store: emulator_storage_connection = os.get_local_storage();
     assert.ok(store, "Loading Storage");
 
+    store.remove_object("idontexist");
+
     // Test for undefined value
     assert.deepEqual(store.get_object("idontexist"), null, "Empty Test Value");
 
@@ -24,9 +26,10 @@ QUnit.test("Emulator: Storage", function(assert: any) {
     assert.deepEqual(store.get_object("idontexist"), val,
                      "Unable to retain object storage.");
 
-    // Undefine variable
-    store.set_object("idontexist", null);
-    assert.deepEqual(store.get_object("idontexist"), null, "Unable to store undefined.");
+    // Remove
+    store.remove_object("idontexist");
+    assert.deepEqual(store.get_object("idontexist"), null, "Unable to remove.");
+
 });
 
 

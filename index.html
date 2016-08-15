@@ -9,9 +9,6 @@
 
         <!-- Third Party Libraries -->
         <script src="third_party/jquery-1.12.3.min.js"></script>
-        <script src="third_party/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
-        <link href="third_party/bootstrap-3.3.6-dist/css/bootstrap.css" rel="stylesheet">
-        <link href="third_party/bootstrap-3.3.6-dist/css/bootstrap-theme.css" rel="stylesheet">
         <script src="third_party/hammer.min.js"></script>
         <script src="third_party/hammer-time.min.js"></script>
         
@@ -42,16 +39,16 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-half">
                     
                     <canvas id="emulator_display" width="320" height="320" class="center-block">
                         Smart Watch Interface.
                     </canvas>
-                    <p>
-                            <a onclick="os.go_home()">Home Button</a>
-                    </p>
+                    <div id="home_btn" onclick="os.go_home()">
+                            <a>Home Button</a>
+                    </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-half">
                     <div>
 
                         <p>
@@ -63,16 +60,19 @@
                             <a href="test/index.html">Run Unit Tests</a>
                         </p>
                     </div>
+                    <h2>Emulator Console</h2>
                     <div id="emulator_console">
-                        
+
                     </div>
                 </div>
             </div>
             <div class="row">
-                Time Scale: <input id="time_scale" type="range"  min="-10" max="100" value="0" step="5" />
+                <h2>Time Scale</h2> 
+                <input id="time_scale" type="range"  min="-10" max="100" value="0" step="5" />
+                <a onclick="document.getElementById('time_scale').value = 0">Reset</a>
             </div>
             <div class="row">
-                Local Storage
+                <h2>Local Storage</h2>
                 <table id="data_table" class="table table-striped">
                     <tr><th>Key</th><th>Value</th></tr>
                 </table>
