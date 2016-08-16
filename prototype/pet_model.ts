@@ -185,6 +185,7 @@ class tommy_model {
     play () {
         this.set_emotion(this.emotion + this.stat_increment * 3);
         this.set_strength(this.strength + this.stat_increment);
+        this.set_hunger(this.hunger - this.stat_increment *2);
         this.last_interaction_time = os.get_time();
         this.save_data();
     }
