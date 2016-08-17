@@ -116,7 +116,7 @@ var emulator_ui = (function () {
         };
         var time_display = os.get_time().toLocaleTimeString("en-GB", options);
         ctx.textAlign = "center";
-        ctx.font = "10px sans-serif";
+        ctx.font = "15px sans-serif";
         ctx.fillText(time_display, this.canvas.width / 2, top_bar_height / 2);
         ctx.font = "30px Arial";
         ctx.textAlign = "center";

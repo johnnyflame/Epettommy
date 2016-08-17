@@ -14,8 +14,8 @@ var tommy_model = (function () {
         this.hunger = 0.5;
         /// Private member emotion, intial emotion set to 0.5.
         this.emotion = 0.5;
-        /// Private member strength, intial strength set to 1.
-        this.strength = 0.2;
+        /// Private member strength, intial strength set to 0.1.
+        this.strength = 0.1;
         /// Private member stat_add, increase state increment.
         this.stat_increment = 0.05;
         /// Private member max_hunger, the maximum hunger limit.
@@ -124,8 +124,8 @@ var tommy_model = (function () {
      */
     tommy_model.prototype.set_strength = function (strength) {
         this.strength = strength;
-        if (this.strength < 0.1) {
-            this.strength = 0.1;
+        if (this.strength < 0.0) {
+            this.strength = 0.0;
         }
         if (this.strength > this.max_strength) {
             this.strength = this.max_strength;
@@ -176,6 +176,7 @@ var tommy_model = (function () {
     tommy_model.prototype.play = function () {
         this.set_emotion(this.emotion + this.stat_increment * 3);
         this.set_strength(this.strength + this.stat_increment);
+        this.set_hunger(this.hunger - this.stat_increment * 2);
         this.last_interaction_time = os.get_time();
         this.save_data();
     };
