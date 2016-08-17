@@ -35,22 +35,30 @@ class clock_application {
 
         let now: Date = os.get_time();
 
-        let date1 = now.toTimeString();
-        let date2 = now.toDateString();
+        let optionst = {
+            hour: "2-digit", minute: "2-digit", second: "2-digit"
+        };
+
+        let date1 = now.toLocaleTimeString("en-GB", optionst);
+
+        let options = {weekday: "long", year: "numeric", month: "short",
+            day: "numeric" };
+        
+        let date2 = now.toLocaleDateString("en-GB", options);
 
         let y_pos = ctx.height() / 4;
         
-        let padding = 50;
+        let padding = 30;
         
         ctx.fillStyle = "#222222";
-        ctx.fillRect(padding, y_pos + 10 - 70 / 2, ctx.width() - 2 * padding, 60);
+        ctx.fillRect(padding, y_pos + 10 - 70 / 2, ctx.width() - 2 * padding, 70);
 
-        ctx.font = "15px Arial";
+        ctx.font = "20px Arial";
         ctx.textAlign = "center";
         ctx.fillStyle = "#EEEEEE";
 
         ctx.fillText(date1, ctx.width() / 2, y_pos);
-        ctx.fillText(date2, ctx.width() / 2, y_pos + 20);
+        ctx.fillText(date2, ctx.width() / 2, y_pos + 30);
         
         // Angles from 12, in the clockwise direction
         let second_angle = (2 * Math.PI) *
