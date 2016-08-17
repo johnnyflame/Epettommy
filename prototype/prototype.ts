@@ -87,15 +87,15 @@ class tommy_home extends scene {
         top_carret.set_position((w - right_carret.width) / 2,  0);
         this.add(top_carret);
                 
-        let food_label = new label("Feed", "10px sans-serif", "#FFFFFF", "center");
+        let food_label = new label("Feed", "13px sans-serif", "#FFFFFF", "center");
         food_label.set_position(left_carret.width / 2, (h - left_carret.height) / 2);
         this.add(food_label);
         
-        let stat_label = new label("Stats", "10px sans-serif", "#FFFFFF", "center");
+        let stat_label = new label("Stats", "13px sans-serif", "#FFFFFF", "center");
         stat_label.set_position((w - right_carret.width / 2),  (h - left_carret.height) / 2);
         this.add(stat_label);
         
-        let game_label = new label("Play", "10px sans-serif", "#FFFFFF", "center");
+        let game_label = new label("Play", "13px sans-serif", "#FFFFFF", "center");
         game_label.set_position(w / 2,  50);
         this.add(game_label);
         
@@ -212,16 +212,16 @@ class tommy_stats extends scene {
         this.add(this.strength);
         this.add(this.emotion);
 
-        let text = new label ("Health", "10px sans-serif", "#FFFFFF", "right");
+        let text = new label ("Health", "13px sans-serif", "#FFFFFF", "right");
         text.set_position(hpad, vpad + tpad);
         this.add(text);
-        text = new label ("Hunger", "10px sans-serif", "#FFFFFF", "right");
+        text = new label ("Hunger", "13px sans-serif", "#FFFFFF", "right");
         text.set_position(hpad, (vpad + this.barheight) + vpad + tpad);
         this.add(text);
-        text = new label ("Strength", "10px sans-serif", "#FFFFFF", "right");
+        text = new label ("Strength", "13px sans-serif", "#FFFFFF", "right");
         text.set_position(hpad, (vpad + this.barheight) * 2 + vpad + tpad);
         this.add(text);
-        text = new label ("Emotion", "10px sans-serif", "#FFFFFF", "right");
+        text = new label ("Emotion", "13px sans-serif", "#FFFFFF", "right");
         text.set_position(hpad, (vpad + this.barheight) * 3 + vpad + tpad);
         this.add(text);
         
