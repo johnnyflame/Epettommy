@@ -10,8 +10,8 @@ class tommy_model {
     private hunger: number = 0.5;
     /// Private member emotion, intial emotion set to 0.5.
     private emotion: number = 0.5;
-    /// Private member strength, intial strength set to 1.
-    private strength: number = 0.2;
+    /// Private member strength, intial strength set to 0.1.
+    private strength: number = 0.1;
     
     /// Private member stat_add, increase state increment.
     private stat_increment: number = 0.05;
@@ -134,8 +134,8 @@ class tommy_model {
      */
     set_strength(strength: number) {
         this.strength = strength;
-        if (this.strength < 0.1) {
-            this.strength = 0.1;
+        if (this.strength < 0.0) {
+            this.strength = 0.0;
         }
         if (this.strength > this.max_strength) {
             this.strength = this.max_strength;
@@ -185,6 +185,7 @@ class tommy_model {
     play () {
         this.set_emotion(this.emotion + this.stat_increment * 3);
         this.set_strength(this.strength + this.stat_increment);
+        this.set_hunger(this.hunger - this.stat_increment * 2);
         this.last_interaction_time = os.get_time();
         this.save_data();
     }
