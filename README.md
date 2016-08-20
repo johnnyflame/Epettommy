@@ -12,6 +12,8 @@ then run index.html under Site Root.
 
 ## Other Gulp Tasks
 
-** `gulp typedoc` will generate documentation from the code.
-** `gulp tslint` will run tslint over the code.
-** `gulp clean` will delete the directories of compiled code and generated documentation.
+* `gulp typedoc` will generate documentation from the code.
+
+* `gulp tslint` will run tslint over the code.
+
+* `gulp clean` will delete the directories of compiled code and generated documentation.
