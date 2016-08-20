@@ -22,6 +22,7 @@ gulp.task('build', function () {
 gulp.task('clean', function(cb) {
   // You can use multiple globbing patterns as you would with `gulp.src`
   del(['build'], cb);
+  del(['doc'], cb);
 });
 
  

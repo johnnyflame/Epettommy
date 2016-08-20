@@ -2,7 +2,10 @@
  * Test applications for emulator UI functions.
  */
 
-/* Very Basic Clock. Closes on tap/swipe. */
+/**
+ *  Very Basic Clock. Closes on tap/swipe.
+ *  Demonstrates registering an application ind using graphics
+ */
 class clock_application {
 
     // Is the application still running
