@@ -1,7 +1,10 @@
 /*
  * Test applications for emulator UI functions.
  */
-/* Very Basic Clock. Closes on tap/swipe. */
+/**
+ *  Very Basic Clock. Closes on tap/swipe.
+ *  Demonstrates registering an application ind using graphics
+ */
 var clock_application = (function () {
     function clock_application() {
     }

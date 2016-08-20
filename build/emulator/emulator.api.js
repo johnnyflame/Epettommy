@@ -1,7 +1,7 @@
 /**
  * Emulator Interface.
  *
- * This contains several interface
+ * This contains several interfaces
  *
  *  - The emulator interface. The public methods on this define the public interface
  *  for an application running inside the emulator.
