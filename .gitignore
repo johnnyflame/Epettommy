@@ -2,5 +2,6 @@
 *.js
 !/third_party
 !gulpfile.js
+!/other-emulator/ui/js/*
 node_modules
 /doc/
